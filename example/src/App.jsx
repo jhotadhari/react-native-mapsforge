@@ -35,29 +35,27 @@ const { MapContainerModule } = nativeMapModules;
  */
 import PickerModalControl from './components/PickerModalControl.jsx';
 import usePermissionsOk from './compose/usePermissionsOk.jsx';
+import { randomNumber } from './utils';
 
-
+const iconMarkerBase = {
+	width: PixelRatio.getPixelSizeForLayoutSize( 40 ),
+	height: PixelRatio.getPixelSizeForLayoutSize( 60 ),
+	anchor: [
+		0,
+		- PixelRatio.getPixelSizeForLayoutSize( 60 ) / 2,
+	],
+};
 
 const icons = [
-	// '/storage/emulated/0/Android/media/com.jhotadhari.reactNativeMapsforgePlayground/marker_red.png',
-	// '/storage/emulated/0/Android/media/com.jhotadhari.reactNativeMapsforgePlayground/marker_white.png',
-
+	{},		// fallback to default icon.
 	{
-		// width: PixelRatio.getPixelSizeForLayoutSize( 70 ),
-		// height: PixelRatio.getPixelSizeForLayoutSize( 70 ),
+		...iconMarkerBase,
+		path: '/storage/emulated/0/Android/media/com.jhotadhari.reactnative.mapsforgeExample/dummy/marker_green.png',
 	},
-
 	{
-		path: '/storage/emulated/0/Android/media/com.jhotadhari.reactNativeMapsforgePlayground/marker_green.png',
-		width: PixelRatio.getPixelSizeForLayoutSize( 40 ),
-		height: PixelRatio.getPixelSizeForLayoutSize( 60 ),
-		anchor: [
-			0,
-			- PixelRatio.getPixelSizeForLayoutSize( 60 ) / 2,
-		],
+		...iconMarkerBase,
+		path: '/storage/emulated/0/Android/media/com.jhotadhari.reactnative.mapsforgeExample/dummy/marker_red.png',
 	},
-
-
 ];
 
 const LiftViewIdStateUp = ( { mapViewNativeTag, setMainMapViewId } ) => {
@@ -78,7 +76,6 @@ const mapFileOptions = [
 	{ label: 'Ecuador', value: '/storage/emulated/0/Documents/orux/mapfiles/Ecuador_oam.osm.map' },
 	{ label: 'Colombia', value: '/storage/emulated/0/Documents/orux/mapfiles/Colombia_oam.osm.map' },
 ];
-
 
 const App = () => {
 
@@ -155,17 +152,10 @@ const App = () => {
 
 	const [
 		locations, setLocations,
-	] = useState( [
-		[
-			-0.20, -78.2,
-		],
-		[
-			-0.22, -78.4,
-		],
-		[
-			-0.24, -78.6,
-		],
-	] );
+	] = useState( Array.apply( null, Array( 30 ) ).map( () => [
+		randomNumber( -0.25, 0 ),		// lat
+		randomNumber( -78.6, -78.37 )	// long
+	] ) );
 
 
 	const { width, height } = useWindowDimensions();
@@ -205,7 +195,7 @@ const App = () => {
 				<MapContainer
 					height={ height }
 					center={ [
-						-0.22, -78.5
+						-0.10, -78.48
 					] }
 					zoom={ 13 }
 					// minZoom={ 12 }
