@@ -87,5 +87,27 @@ dependencies {
   // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
+
+  // gpx parser
+  implementation 'com.github.ticofab:android-gpx-parser:2.3.1'
+
+  // Mapsforge dependencies
+  implementation 'org.mapsforge:mapsforge-core:0.21.0'
+  implementation 'org.mapsforge:mapsforge-map:0.21.0'
+  implementation 'org.mapsforge:mapsforge-map-reader:0.21.0'
+  implementation 'org.mapsforge:mapsforge-themes:0.21.0'
+  implementation 'net.sf.kxml:kxml2:2.3.0'
+  implementation 'org.mapsforge:mapsforge-map-android:0.21.0'
+  implementation 'com.caverock:androidsvg:1.4'
+  implementation 'org.mapsforge:mapsforge-core:0.21.0'
+
+  // // Mapsforge POI dependencies
+  // implementation 'org.mapsforge:mapsforge-poi:0.21.0'
+  // implementation 'org.mapsforge:mapsforge-poi-android:0.21.0'
+  // implementation 'org.mapsforge:sqlite-android:0.21.0'
+  // implementation 'org.mapsforge:sqlite-android:0.21.0:natives-armeabi-v7a'
+  // implementation 'org.mapsforge:sqlite-android:0.21.0:natives-arm64-v8a'
+  // implementation 'org.mapsforge:sqlite-android:0.21.0:natives-x86'
+  // implementation 'org.mapsforge:sqlite-android:0.21.0:natives-x86_64'
 }
 

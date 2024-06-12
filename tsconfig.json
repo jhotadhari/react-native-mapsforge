@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
     "rootDir": ".",
-    "paths": {
-      "react-native-mapsforge": ["./src/index"]
-    },
+    "paths": {},
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "esModuleInterop": true,
