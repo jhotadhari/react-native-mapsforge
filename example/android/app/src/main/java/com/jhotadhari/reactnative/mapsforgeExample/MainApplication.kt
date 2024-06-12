@@ -1,4 +1,4 @@
-package com.mapsforgeexample
+package com.jhotadhari.reactnative.mapsforgeExample
 
 import android.app.Application
 import com.facebook.react.PackageList
@@ -10,6 +10,7 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.soloader.SoLoader
+import com.jhotadhari.reactnative.mapsforge.MapsforgeModule
 
 class MainApplication : Application(), ReactApplication {
 

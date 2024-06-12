@@ -6,8 +6,8 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
 
-const Mapsforge = NativeModules.Mapsforge
-  ? NativeModules.Mapsforge
+const Mapsforge = NativeModules.MapsforgeModule
+  ? NativeModules.MapsforgeModule
   : new Proxy(
       {},
       {
@@ -19,4 +19,9 @@ const Mapsforge = NativeModules.Mapsforge
 
 export function multiply(a: number, b: number): Promise<number> {
   return Mapsforge.multiply(a, b);
+  // return new Promise( resolve => {
+  //   resolve(a + b);
+  // } );
 }
+
+

@@ -1,4 +1,4 @@
-package com.mapsforge;
+package com.jhotadhari.reactnative.mapsforge;
 
 import androidx.annotation.NonNull;
 
@@ -10,7 +10,7 @@ import com.facebook.react.module.annotations.ReactModule;
 
 @ReactModule(name = MapsforgeModule.NAME)
 public class MapsforgeModule extends ReactContextBaseJavaModule {
-  public static final String NAME = "Mapsforge";
+  public static final String NAME = "MapsforgeModule";
 
   public MapsforgeModule(ReactApplicationContext reactContext) {
     super(reactContext);

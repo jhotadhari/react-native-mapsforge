@@ -1,4 +1,4 @@
-package com.mapsforge;
+package com.jhotadhari.reactnative.mapsforge;
 
 import androidx.annotation.NonNull;
 
