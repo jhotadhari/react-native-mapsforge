@@ -98,7 +98,10 @@ const LayerMapsforge = ( {
 		mapFile,
 		renderTheme,
 		renderStyle,
-		( renderOverlays && Array.isArray( renderOverlays ) && renderOverlays.length ? renderOverlays : null ),
+		( renderOverlays && Array.isArray( renderOverlays ) && renderOverlays.length
+			? renderOverlays.join( '' )
+			: null
+		),
 	] );
 
 	return null;

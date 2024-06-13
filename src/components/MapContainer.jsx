@@ -96,7 +96,7 @@ const MapContainer = ( {
 		if ( mapLayersCreated && mapViewNativeTag ) {
 			MapContainerModule.setCenter( mapViewNativeTag, center );
 		}
-	}, [center] );
+	}, [center.join( '' )] );
 
 	useEffect( () => {
 		const eventEmitter = new NativeEventEmitter();

@@ -89,7 +89,7 @@ const FeatureReact = ( {
 				MapFeatureReactModule.setLocation( mapViewNativeTag, uid, latLong );
 			} );
 		}
-	}, [latLong] );
+	}, [latLong.join( '' )] );
 
 	return <Animated.View style={ {
 		zIndex: 99999,

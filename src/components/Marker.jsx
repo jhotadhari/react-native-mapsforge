@@ -84,7 +84,7 @@ const Marker = ( {
 				MapMarkerModule.setMarkerLocation( mapViewNativeTag, hash, latLong );
 			} );
 		}
-	}, [latLong] );
+	}, [latLong.join( '' )] );
 
 	useEffect( () => {
 		if ( hash && mapViewNativeTag ) {
@@ -92,7 +92,7 @@ const Marker = ( {
 				MapMarkerModule.setMarkerIcon( mapViewNativeTag, hash, iconWithDefaults );
 			} );
 		}
-	}, [icon] );
+	}, [JSON.stringify( icon )] );
 
 	useEffect( () => {
 		if ( onTab && hash && mapViewNativeTag ) {
