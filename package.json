@@ -1,7 +1,7 @@
 {
   "name": "react-native-mapsforge",
   "version": "0.1.0",
-  "description": "React Native components to build Mapsforgs maps. Offline rendering of OpenStreetMap data. Android only",
+  "description": "React Native components to build Mapsforge maps. Offline rendering of OpenStreetMap data. Android only",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
   "types": "lib/typescript/src/index.d.ts",
@@ -43,7 +43,11 @@
     "url": "git+https://github.com/jhotadhari/react-native-mapsforge.git"
   },
   "author": "jhotadhari <tellme@waterproof-webdesign.info> (https://github.com/jhotadhari)",
-  "license": "MIT",
+  "license": "CC-BY-NC-SA-4.0",
+  "licenseUrl": {
+    "deed": "https://creativecommons.org/licenses/by-nc-sa/4.0",
+    "legalcode": "https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode"
+  },
   "bugs": {
     "url": "https://github.com/jhotadhari/react-native-mapsforge/issues"
   },
