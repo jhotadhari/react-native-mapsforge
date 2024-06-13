@@ -16,8 +16,6 @@ import {
  */
 import { LINKING_ERROR } from '../constants';
 
-console.log( 'debug NativeModules', NativeModules ); // debug
-
 const PermissionModule = NativeModules.PermissionModule
 	? NativeModules.PermissionModule
 	: new Proxy(

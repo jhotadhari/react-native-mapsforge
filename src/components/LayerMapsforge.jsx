@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
+import promiseQueue from '../promiseQueue';
 import usePrevious from '../compose/usePrevious';
 import { MapLayerMapsforgeModule } from '../nativeMapModules';
 
@@ -39,17 +40,19 @@ const LayerMapsforge = ( {
 	} ) );
 
 	const createLayer = () => {
-		MapLayerMapsforgeModule.createLayer(
-			mapViewNativeTag,
-			mapFile,
-			renderTheme,
-			renderStyle,
-			renderOverlays,
-			reactTreeIndex
-		).then( newHash => {
-			if ( newHash ) {
-				setHash( newHash );
-			}
+		promiseQueue.enqueue( () => {
+			MapLayerMapsforgeModule.createLayer(
+				mapViewNativeTag,
+				mapFile,
+				renderTheme,
+				renderStyle,
+				renderOverlays,
+				reactTreeIndex
+			).then( newHash => {
+				if ( newHash ) {
+					promiseQueue.enqueue( () => setHash( newHash ) );
+				}
+			} );
 		} );
 	};
 
@@ -60,7 +63,9 @@ const LayerMapsforge = ( {
 		}
 		return () => {
 			if ( hash && mapViewNativeTag ) {
-				MapLayerMapsforgeModule.removeLayer( mapViewNativeTag, hash );
+				promiseQueue.enqueue( () => {
+					MapLayerMapsforgeModule.removeLayer( mapViewNativeTag, hash );
+				} );
 			}
 		};
 	}, [
@@ -80,10 +85,12 @@ const LayerMapsforge = ( {
 			}
 
 			if ( shouldRecreate ) {
-				MapLayerMapsforgeModule.removeLayer( mapViewNativeTag, hash ).then( removedHash => {
-					if ( removedHash ) {
-						createLayer()
-					}
+				promiseQueue.enqueue( () => {
+					MapLayerMapsforgeModule.removeLayer( mapViewNativeTag, hash ).then( removedHash => {
+						if ( removedHash ) {
+							createLayer()
+						}
+					} );
 				} );
 			}
 		}

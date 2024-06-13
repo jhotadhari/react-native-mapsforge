@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import MapPropTypes from '../MapPropTypes';
+import promiseQueue from '../promiseQueue';
 import { MapPolylineModule } from '../nativeMapModules';
 
 const Polyline = ( {
@@ -32,16 +33,20 @@ const Polyline = ( {
 	] = useState( null );
 
 	const create = () => {
-		MapPolylineModule.create(
-			mapViewNativeTag,
-			( !! onTab && tabDistanceThreshold > 0 ? tabDistanceThreshold : 0 ),
-			positions,
-			file,
-			reactTreeIndex
-		).then( newHash => {
-			if ( newHash ) {
-				setHash( newHash );
-			}
+		promiseQueue.enqueue( () => {
+			MapPolylineModule.create(
+				mapViewNativeTag,
+				( !! onTab && tabDistanceThreshold > 0 ? tabDistanceThreshold : 0 ),
+				positions,
+				file,
+				reactTreeIndex
+			).then( newHash => {
+				if ( newHash ) {
+					promiseQueue.enqueue( () => {
+						setHash( newHash );
+					} );
+				}
+			} );
 		} );
 	};
 	useEffect( () => {
@@ -51,7 +56,9 @@ const Polyline = ( {
 		}
 		return () => {
 			if ( hash && mapViewNativeTag ) {
-				MapPolylineModule.remove( mapViewNativeTag, hash );
+				promiseQueue.enqueue( () => {
+					MapPolylineModule.remove( mapViewNativeTag, hash );
+				} );
 			}
 		};
 	}, [
@@ -61,7 +68,9 @@ const Polyline = ( {
 
 	useEffect( () => {
 		if ( hash && mapViewNativeTag ) {
-			MapPolylineModule.setPositions( mapViewNativeTag, hash, positions );
+			promiseQueue.enqueue( () => {
+				MapPolylineModule.setPositions( mapViewNativeTag, hash, positions );
+			} );
 		}
 	}, [
 		positions,

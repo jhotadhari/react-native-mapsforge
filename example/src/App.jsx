@@ -25,6 +25,8 @@ import {
 	LayerMapsforge,
 	Marker,
 	Polyline,
+	usePromiseQueueState,
+	promiseQueue,
 	useRenderStyleOptions,
 	nativeMapModules,
 } from 'react-native-mapsforge';
@@ -88,6 +90,8 @@ const App = () => {
 
 	const { permissionsOk, requestPermission } = usePermissionsOk();
 
+	const promiseQueueState = usePromiseQueueState();
+
 	const [
 		mapFile, setMapFile,
 	] = useState( mapFileOptions[0].value );
@@ -144,15 +148,9 @@ const App = () => {
 		}
 	}, [renderStyle,renderStyleDefaultId] );
 
-
-
-
-
-
-
 	const [
 		locations, setLocations,
-	] = useState( Array.apply( null, Array( 30 ) ).map( () => [
+	] = useState( Array.apply( null, Array( 100 ) ).map( () => [
 		randomNumber( -0.25, 0 ),		// lat
 		randomNumber( -78.6, -78.37 )	// long
 	] ) );
@@ -247,6 +245,7 @@ const App = () => {
 					flexDirection: 'row',
 					width,
 					justifyContent: 'space-evenly',
+					alignItems: 'center',
 					marginBottom: 10,
 				} }>
 					<Button
@@ -254,6 +253,7 @@ const App = () => {
 							setShowMarkers( ! showMarkers );
 						} }
 						title="Toggle Markers"
+						disabled={ promiseQueueState > 0 }
 					/>
 					<Button
 						onPress={ () => {
@@ -261,10 +261,12 @@ const App = () => {
 							setLocations( newLocations );
 						} }
 						title="random locations"
+						disabled={ promiseQueueState > 0 }
 					/>
 					<Button
 						onPress={ () => setIconIndex( iconIndex + 1 === icons.length ? 0 : iconIndex + 1 ) }
 						title="Change icons"
+						disabled={ promiseQueueState > 0 }
 					/>
 				</View>
 
@@ -272,6 +274,7 @@ const App = () => {
 					...style,
 					flexDirection: 'row',
 					justifyContent: 'space-evenly',
+					alignItems: 'center',
 					width,
 					marginBottom: 10,
 				} }>
@@ -280,18 +283,28 @@ const App = () => {
 							setShowLayerMapsforge( ! showLayerMapsforge );
 						} }
 						title="Toggle Mapsforge"
+						disabled={ promiseQueueState > 0 }
 					/>
+
+					<Text>{ promiseQueueState > 0 ? 'busy' : 'idle'  }</Text>
+
 					<Button
 						onPress={ () => {
-							MapContainerModule.zoomIn( mainMapViewId );
+							promiseQueue.enqueue( () => {
+								MapContainerModule.zoomIn( mainMapViewId );
+							} );
 						} }
 						title="+"
+						disabled={ promiseQueueState > 0 }
 					/>
 					<Button
 						onPress={ () => {
-							MapContainerModule.zoomOut( mainMapViewId );
+							promiseQueue.enqueue( () => {
+								MapContainerModule.zoomOut( mainMapViewId );
+							} );
 						} }
 						title="-"
+						disabled={ promiseQueueState > 0 }
 					/>
 				</View>
 
@@ -299,6 +312,7 @@ const App = () => {
 					...style,
 					flexDirection: 'row',
 					justifyContent: 'space-evenly',
+					alignItems: 'center',
 					width,
 					marginBottom: 10,
 				} }>
@@ -309,6 +323,7 @@ const App = () => {
 						values={ [mapFile] }
 						onChange={ clickedVal => setMapFile( clickedVal ) }
 						closeOnChange={ false }
+						disabled={ promiseQueueState > 0 }
 					/>
 
 					<PickerModalControl
@@ -317,11 +332,12 @@ const App = () => {
 						values={ [renderTheme] }
 						onChange={ clickedVal => setRenderTheme( clickedVal ) }
 						closeOnChange={ false }
+						disabled={ promiseQueueState > 0 }
 					/>
 
 					<PickerModalControl
 						headerLabel={ 'Render style' }
-						disabled={ ! renderStyleOptions.length }
+						disabled={ promiseQueueState > 0 || ! renderStyleOptions.length }
 						buttonLabelFallback={ 'Flavour' }
 						options={ renderStyleOptions }
 						values={ [renderStyle] }
@@ -333,7 +349,7 @@ const App = () => {
 						multiple={ true }
 						buttonLabel={ 'options' }
 						headerLabel={ 'Render style options' }
-						disabled={ ! renderStyleOptions.length }
+						disabled={ promiseQueueState > 0 || ! renderStyleOptions.length }
 						buttonLabelFallback={ 'test' }
 						options={ renderOverlayOptions }
 						values={ renderOverlays }

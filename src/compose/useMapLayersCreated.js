@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import {
 	useEffect,
 	useState,
@@ -7,6 +10,9 @@ import {
 	NativeEventEmitter,
 } from 'react-native';
 
+/**
+ * Internal dependencies
+ */
 const { MapContainerModule } = NativeModules;
 
 const useMapLayersCreated = mapViewNativeTag => {

@@ -10,10 +10,12 @@ import {
 	NativeEventEmitter,
 } from 'react-native';
 import PropTypes from 'prop-types';
+import Queue from 'queue-promise';
 
 /**
  * Internal dependencies
  */
+import promiseQueue from '../promiseQueue';
 import MapPropTypes from '../MapPropTypes';
 import { MapMarkerModule } from '../nativeMapModules';
 
@@ -44,25 +46,31 @@ const Marker = ( {
 		hash, setHash,
 	] = useState( null );
 
-
 	useEffect( () => {
 		if ( null === hash && mapViewNativeTag ) {
 			setHash( false );
-			MapMarkerModule.createMarker(
-				mapViewNativeTag,
-				( !! onTab && tabDistanceThreshold > 0 ? tabDistanceThreshold : 0 ),
-				latLong,
-				iconWithDefaults,
-				reactTreeIndex
-			).then( newHash => {
-				if ( newHash ) {
-					setHash( newHash );
-				}
+			promiseQueue.enqueue( () => {
+				MapMarkerModule.createMarker(
+					mapViewNativeTag,
+					( !! onTab && tabDistanceThreshold > 0 ? tabDistanceThreshold : 0 ),
+					latLong,
+					iconWithDefaults,
+					reactTreeIndex
+				).then( newHash => {
+					if ( newHash ) {
+						promiseQueue.enqueue( () => {
+							setHash( newHash );
+						} );
+
+					}
+				} )
 			} );
 		}
 		return () => {
 			if ( hash && mapViewNativeTag ) {
-				MapMarkerModule.removeMarker( mapViewNativeTag, hash );
+				promiseQueue.enqueue( () => {
+					MapMarkerModule.removeMarker( mapViewNativeTag, hash );
+				} );
 			}
 		};
 	}, [
@@ -72,13 +80,17 @@ const Marker = ( {
 
 	useEffect( () => {
 		if ( hash && mapViewNativeTag ) {
-			MapMarkerModule.setMarkerLocation( mapViewNativeTag, hash, latLong );
+			promiseQueue.enqueue( () => {
+				MapMarkerModule.setMarkerLocation( mapViewNativeTag, hash, latLong );
+			} );
 		}
 	}, [latLong] );
 
 	useEffect( () => {
 		if ( hash && mapViewNativeTag ) {
-			MapMarkerModule.setMarkerIcon( mapViewNativeTag, hash, iconWithDefaults );
+			promiseQueue.enqueue( () => {
+				MapMarkerModule.setMarkerIcon( mapViewNativeTag, hash, iconWithDefaults );
+			} );
 		}
 	}, [icon] );
 

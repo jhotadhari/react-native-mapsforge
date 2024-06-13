@@ -15,6 +15,7 @@ import {
 import ModalWrapper from './ModalWrapper.jsx';
 
 const PickerModalControl = ( {
+    disabled,
     buttonLabel,
     buttonLabelFallback,
     options,
@@ -35,6 +36,7 @@ const PickerModalControl = ( {
 
 	return <>
         <Button
+            disabled={ disabled }
             key="button"
             onPress={ () => {
                 setModalVisible( true );
@@ -63,7 +65,7 @@ const PickerModalControl = ( {
                     height: itemHeight,
                 } }>
                     <Button
-                        disabled={ item.disabled }
+                        disabled={ disabled || item.disabled }
                         title={ item.label }
                         color={ values.includes( item.value ) ? '#841584' : '' }
                         onPress={ e => {

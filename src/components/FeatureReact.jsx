@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import MapPropTypes from '../MapPropTypes';
+import promiseQueue from '../promiseQueue';
 import { MapFeatureReactModule } from '../nativeMapModules';
 
 const FeatureReact = ( {
@@ -36,18 +37,22 @@ const FeatureReact = ( {
 	useEffect( () => {
 		if ( null === uid && mapViewNativeTag ) {
 			setUid( false );
-			MapFeatureReactModule.createFeature(
-				mapViewNativeTag,
-				latLong,
-			).then( newUid => {
-				if ( newUid ) {
-					setUid( newUid );
-				}
+			promiseQueue.enqueue( () => {
+				MapFeatureReactModule.createFeature(
+					mapViewNativeTag,
+					latLong,
+				).then( newUid => {
+					if ( newUid ) {
+						promiseQueue.enqueue( () => setHash( newUid ) );
+					}
+				} );
 			} );
 		}
 		return () => {
 			if ( uid && mapViewNativeTag ) {
-				MapFeatureReactModule.removeFeature( mapViewNativeTag, uid );
+				promiseQueue.enqueue( () => {
+					MapFeatureReactModule.removeFeature( mapViewNativeTag, uid );
+				} );
 			}
 		};
 	}, [
@@ -80,7 +85,9 @@ const FeatureReact = ( {
 
 	useEffect( () => {
 		if ( uid && mapViewNativeTag ) {
-			MapFeatureReactModule.setLocation( mapViewNativeTag, uid, latLong );
+			promiseQueue.enqueue( () => {
+				MapFeatureReactModule.setLocation( mapViewNativeTag, uid, latLong );
+			} );
 		}
 	}, [latLong] );
 

@@ -7,6 +7,8 @@ import Marker from './components/Marker.jsx';
 import Polyline from './components/Polyline.jsx';
 import MapPropTypes from './MapPropTypes';
 import useRenderStyleOptions from './compose/useRenderStyleOptions';
+import usePromiseQueueState from './compose/usePromiseQueueState';
+import promiseQueue from './promiseQueue';
 import * as nativeMapModules from './nativeMapModules';
 
 export {
@@ -14,8 +16,10 @@ export {
 	LayerMapsforge,
 	Marker,
 	Polyline,
-	useRenderStyleOptions,
 	MapPropTypes,
+	useRenderStyleOptions,
+	usePromiseQueueState,
+	promiseQueue,
 	nativeMapModules,
 };
 
