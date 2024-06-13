@@ -21,7 +21,6 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import MapPropTypes from '../MapPropTypes';
-import { LINKING_ERROR } from '../constants';
 import { MapViewManager } from './MapViewManager.jsx';
 import useMapLayersCreated from '../compose/useMapLayersCreated.js';
 import { MapContainerModule } from '../nativeMapModules';
@@ -150,7 +149,7 @@ const MapContainer = ( {
 			minZoom={ minZoom }
 			maxZoom={ maxZoom }
 		/>
-			{ wrappedChildren }
+			{ mapLayersCreated && wrappedChildren }
 	</ScrollView>;
 };
 

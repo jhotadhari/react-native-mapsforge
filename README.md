@@ -51,7 +51,7 @@ const App = () => <SafeAreaView>
 
     </MapContainer>
 
-</SafeAreaView>;;
+</SafeAreaView>;
 
 ```
 

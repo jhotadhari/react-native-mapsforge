@@ -14,7 +14,6 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import MapPropTypes from '../MapPropTypes';
-import useMapLayersCreated from '../compose/useMapLayersCreated';
 import { MapPolylineModule } from '../nativeMapModules';
 
 const Polyline = ( {
@@ -32,8 +31,6 @@ const Polyline = ( {
 		hash, setHash,
 	] = useState( null );
 
-	const mapLayersCreated = useMapLayersCreated( mapViewNativeTag );
-
 	const create = () => {
 		MapPolylineModule.create(
 			mapViewNativeTag,
@@ -48,7 +45,7 @@ const Polyline = ( {
 		} );
 	};
 	useEffect( () => {
-		if ( mapLayersCreated && null === hash && mapViewNativeTag ) {
+		if ( null === hash && mapViewNativeTag ) {
 			setHash( false );
 			create();
 		}
@@ -58,13 +55,12 @@ const Polyline = ( {
 			}
 		};
 	}, [
-		mapLayersCreated,
 		mapViewNativeTag,
 		!! hash,
 	] );
 
 	useEffect( () => {
-		if ( mapLayersCreated && hash && mapViewNativeTag ) {
+		if ( hash && mapViewNativeTag ) {
 			MapPolylineModule.setPositions( mapViewNativeTag, hash, positions );
 		}
 	}, [

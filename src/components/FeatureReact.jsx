@@ -16,9 +16,6 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import MapPropTypes from '../MapPropTypes';
-
-
-import useMapLayersCreated from '../compose/useMapLayersCreated';
 import { MapFeatureReactModule } from '../nativeMapModules';
 
 const FeatureReact = ( {
@@ -36,10 +33,8 @@ const FeatureReact = ( {
 		y: useRef( new Animated.Value(0) ).current,
 	};
 
-	const mapLayersCreated = useMapLayersCreated( mapViewNativeTag );
-
 	useEffect( () => {
-		if ( mapLayersCreated && null === uid && mapViewNativeTag ) {
+		if ( null === uid && mapViewNativeTag ) {
 			setUid( false );
 			MapFeatureReactModule.createFeature(
 				mapViewNativeTag,
@@ -56,7 +51,6 @@ const FeatureReact = ( {
 			}
 		};
 	}, [
-		mapLayersCreated,
 		mapViewNativeTag,
 		!! uid,
 	] );

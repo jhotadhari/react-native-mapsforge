@@ -27,7 +27,6 @@ const useMapLayersCreated = mapViewNativeTag => {
 		};
 	}, [mapViewNativeTag] );
 
-
 	useEffect( () => {
 		if ( mapViewNativeTag ) {
 			MapContainerModule.getLayersCreated( mapViewNativeTag ).then( created => {

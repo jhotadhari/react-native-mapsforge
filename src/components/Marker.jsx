@@ -15,7 +15,6 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import MapPropTypes from '../MapPropTypes';
-import useMapLayersCreated from '../compose/useMapLayersCreated';
 import { MapMarkerModule } from '../nativeMapModules';
 
 const defaultIconSize = PixelRatio.getPixelSizeForLayoutSize( 20 );
@@ -45,10 +44,9 @@ const Marker = ( {
 		hash, setHash,
 	] = useState( null );
 
-	const mapLayersCreated = useMapLayersCreated( mapViewNativeTag );
 
 	useEffect( () => {
-		if ( mapLayersCreated && null === hash && mapViewNativeTag ) {
+		if ( null === hash && mapViewNativeTag ) {
 			setHash( false );
 			MapMarkerModule.createMarker(
 				mapViewNativeTag,
@@ -68,7 +66,6 @@ const Marker = ( {
 			}
 		};
 	}, [
-		mapLayersCreated,
 		mapViewNativeTag,
 		!! hash,
 	] );

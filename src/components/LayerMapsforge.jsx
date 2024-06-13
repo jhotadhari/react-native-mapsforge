@@ -11,7 +11,6 @@ import PropTypes from 'prop-types';
  * Internal dependencies
  */
 import usePrevious from '../compose/usePrevious';
-import useMapLayersCreated from '../compose/useMapLayersCreated';
 import { MapLayerMapsforgeModule } from '../nativeMapModules';
 
 const LayerMapsforge = ( {
@@ -34,8 +33,6 @@ const LayerMapsforge = ( {
 		hash, setHash,
 	] = useState( null );
 
-	const mapLayersCreated = useMapLayersCreated( mapViewNativeTag );
-
 	const { renderStyleDefaultId } = useRenderStyleOptions( ( {
 		renderTheme,
 		nativeTag: mapViewNativeTag,
@@ -57,7 +54,7 @@ const LayerMapsforge = ( {
 	};
 
 	useEffect( () => {
-		if ( mapLayersCreated && null === hash && mapViewNativeTag && mapFile ) {
+		if ( null === hash && mapViewNativeTag && mapFile ) {
 			setHash( false );
 			createLayer();
 		}
@@ -67,13 +64,12 @@ const LayerMapsforge = ( {
 			}
 		};
 	}, [
-		mapLayersCreated,
 		mapViewNativeTag,
 		!! hash,
 	] );
 
 	useEffect( () => {
-		if ( mapLayersCreated && hash && mapViewNativeTag ) {
+		if ( hash && mapViewNativeTag ) {
 			let shouldRecreate = true;
 			if (
 				renderStyle !== renderStylePrev
