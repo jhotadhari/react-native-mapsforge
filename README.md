@@ -7,7 +7,10 @@ React Native components to build Mapsforge maps. Offline rendering of OpenStreet
 ## Installation
 
 ```sh
-npm install react-native-mapsforge
+# npm install react-native-mapsforge
+
+# It's not hosted on npm yet, let's install it from github:
+npm install git+https://github.com/jhotadhari/react-native-mapsforge.git
 ```
 
 ## Usage
