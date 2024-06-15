@@ -15,21 +15,19 @@ import {
  */
 const { MapLayerMapsforgeModule } = NativeModules;
 
-useRenderStyleOptions = ( {
+const useRenderStyleOptions = ( {
 	renderTheme,
 	nativeTag,
 } ) => {
 
-	const [renderStyleOptions,setRenderStyleOptions] = useState( [] );
+	const [renderStyleOptions, setRenderStyleOptions] = useState( [] );
 
-	const [
-		renderStyleDefaultId, setRenderStyleDefault,
-	] = useState( null );
+	const [renderStyleDefaultId, setRenderStyleDefault] = useState( null );
 
 	useEffect( () => {
 		const eventEmitter = new NativeEventEmitter();
 		let eventListener = eventEmitter.addListener( 'RenderThemeParsed', result => {
-			if ( ! renderStyleOptions.length && result && renderTheme == result.filePath ) {
+			if ( ! renderStyleOptions.length && result && renderTheme === result.filePath ) {
 				setRenderStyleOptions( Object.values( result.collection ) );
 				if ( ! renderStyleDefaultId ) {
 					const defaultStyle = Object.values( result.collection ).find( obj => obj.default );
@@ -61,7 +59,7 @@ useRenderStyleOptions = ( {
 				}
 			} );
 		}
-	}, [nativeTag,renderTheme] );
+	}, [nativeTag, renderTheme] );
 
 	return {
 		renderStyleDefaultId,

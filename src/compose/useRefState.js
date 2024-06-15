@@ -10,9 +10,12 @@ import { useRef } from 'react';
  */
 const useRefState = initial => {
 	const stateRef = useRef( initial );
-	const state = stateRef?.current;
-	const setState = newVal => stateRef.current = newVal;
-	return [state,setState]
+	return [
+		stateRef?.current,
+		newVal => {
+			stateRef.current = newVal;
+		},
+	];
 };
 
 export default useRefState;

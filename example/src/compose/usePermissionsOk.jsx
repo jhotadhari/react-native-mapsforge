@@ -24,14 +24,12 @@ const PermissionModule = NativeModules.PermissionModule
 			get() {
 				throw new Error( LINKING_ERROR );
 			},
-		}
+		},
 	);
 
 const usePermissionsOk = () => {
 
-	const [
-		permissionsOk, setPermissionsOk,
-	] = useState( false );
+	const [permissionsOk, setPermissionsOk] = useState( false );
 
 	useEffect( () => {
 		if ( ! permissionsOk ) {
@@ -59,6 +57,6 @@ const usePermissionsOk = () => {
 		permissionsOk,
 		requestPermission: PermissionModule.requestPermission,
 	};
-}
+};
 
 export default usePermissionsOk;

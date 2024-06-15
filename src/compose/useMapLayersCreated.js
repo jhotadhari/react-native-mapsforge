@@ -17,9 +17,7 @@ const { MapContainerModule } = NativeModules;
 
 const useMapLayersCreated = mapViewNativeTag => {
 
-	const [
-		mapLayersCreated, setMapLayersCreated,
-	] = useState( false );
+	const [mapLayersCreated, setMapLayersCreated] = useState( false );
 
 	useEffect( () => {
 		const eventEmitter = new NativeEventEmitter();

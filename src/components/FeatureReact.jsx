@@ -25,17 +25,15 @@ const FeatureReact = ( {
 	children,
 } ) => {
 
-	const [
-		uid, setUid,
-	] = useRefState( null );
+	const [uid, setUid] = useRefState( null );
 
 	const fadeAnim = {
-		x: useRef( new Animated.Value(0) ).current,
-		y: useRef( new Animated.Value(0) ).current,
+		x: useRef( new Animated.Value( 0 ) ).current,
+		y: useRef( new Animated.Value( 0 ) ).current,
 	};
 
 	useEffect( () => {
-		if ( null === uid && mapViewNativeTag ) {
+		if ( uid === null && mapViewNativeTag ) {
 			setUid( false );
 			promiseQueue.enqueue( () => {
 				MapFeatureReactModule.createFeature(
@@ -77,7 +75,7 @@ const FeatureReact = ( {
 				eventListener.remove();
 			};
 		}
-	}, [mapViewNativeTag,uid] );
+	}, [mapViewNativeTag, uid] );
 
 	useEffect( () => {
 		if ( uid && mapViewNativeTag ) {
@@ -87,16 +85,18 @@ const FeatureReact = ( {
 		}
 	}, [latLong.join( '' )] );
 
-	return <Animated.View style={ {
-		zIndex: 99999,
-		top: 0,
-		left: 0,
-		position: 'absolute',
-		transform: [
-			{ translateX: fadeAnim.x },
-			{ translateY: fadeAnim.y },
-		],
-	} }>
+	return <Animated.View
+		style={ {
+			zIndex: 99999,
+			top: 0,
+			left: 0,
+			position: 'absolute',
+			transform: [
+				{ translateX: fadeAnim.x },
+				{ translateY: fadeAnim.y },
+			],
+		} }
+	>
 		{ children }
 	</Animated.View>;
 };

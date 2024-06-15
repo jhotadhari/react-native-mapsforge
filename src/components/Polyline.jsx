@@ -1,19 +1,15 @@
 /**
  * External dependencies
  */
-import React, {
-	useEffect,
-} from 'react';
-import {
-	NativeEventEmitter,
-} from 'react-native';
-import PropTypes from 'prop-types';
+import React, { useEffect } from 'react';
+import { NativeEventEmitter } from 'react-native';
+// import PropTypes from 'prop-types';
 
 /**
  * Internal dependencies
  */
 import useRefState from '../compose/useRefState';
-import MapPropTypes from '../MapPropTypes';
+// import MapPropTypes from '../MapPropTypes';
 import promiseQueue from '../promiseQueue';
 import { MapPolylineModule } from '../nativeMapModules';
 
@@ -28,9 +24,7 @@ const Polyline = ( {
 
 	tabDistanceThreshold = tabDistanceThreshold || 50;
 
-	const [
-		hash, setHash,
-	] = useRefState( null );
+	const [hash, setHash] = useRefState( null );
 
 	const create = () => {
 		promiseQueue.enqueue( () => {
@@ -39,12 +33,12 @@ const Polyline = ( {
 				( !! onTab && tabDistanceThreshold > 0 ? tabDistanceThreshold : 0 ),
 				positions,
 				file,
-				reactTreeIndex
-			).then( newHash => newHash ? setHash( newHash ) : null )
+				reactTreeIndex,
+			).then( newHash => newHash ? setHash( parseInt( newHash, 10 ) ) : null );
 		} );
 	};
 	useEffect( () => {
-		if ( null === hash && mapViewNativeTag ) {
+		if ( hash === null && mapViewNativeTag ) {
 			setHash( false );
 			create();
 		}
@@ -66,15 +60,13 @@ const Polyline = ( {
 				MapPolylineModule.setPositions( mapViewNativeTag, hash, positions );
 			} );
 		}
-	}, [
-		positions,
-	] );
+	}, [positions] );
 
 	useEffect( () => {
 		if ( onTab && hash && mapViewNativeTag ) {
 			const eventEmitter = new NativeEventEmitter();
 			let eventListener = eventEmitter.addListener( 'PolylineTouch', result => {
-				if ( result.hash == hash ) {
+				if ( parseInt( result.hash, 10 ) === hash ) {
 					onTab( result );
 				}
 			} );
@@ -82,7 +74,7 @@ const Polyline = ( {
 				eventListener.remove();
 			};
 		}
-	}, [mapViewNativeTag,hash] );
+	}, [mapViewNativeTag, hash] );
 
 	return null;
 };

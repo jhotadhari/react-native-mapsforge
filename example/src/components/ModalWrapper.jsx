@@ -24,27 +24,27 @@ const ModalWrapper = ( {
 
 	const { height, width } = useWindowDimensions();
 
-    const absFullStyle = {
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        position: 'absolute',
-        width,
-        height,
-    };
+	const absFullStyle = {
+		top: 0,
+		right: 0,
+		bottom: 0,
+		left: 0,
+		position: 'absolute',
+		width,
+		height,
+	};
 
 	return <Modal
 		style={ {
-            ...absFullStyle,
+			...absFullStyle,
 			zIndex: 999999,
 		} }
-		visible={modalVisible}
+		visible={ modalVisible }
 
 	>
 		<Pressable
 			onPress={ () => {
-                setModalVisible( false );
+				setModalVisible( false );
 			} }
 			style={ {
 				...absFullStyle,
@@ -54,43 +54,49 @@ const ModalWrapper = ( {
 
 			} }
 		>
-			<Pressable onPress={ event => {
-                event.stopPropagation();
-            } } >
+			<Pressable
+				onPress={ event => {
+					event.stopPropagation();
+				} }
+			>
 
-				<View style={ {
-                    backgroundColor: isDarkMode ? 'black' : '#eee',
-                    minHeight: 200,
-                    minWidth: width * (2/3),
-                    maxWidth: width * 0.9,
-                    maxHeight: height * 0.9,
-                    padding: 20,
-					...style,
-                } } >
+				<View
+					style={ {
+						backgroundColor: isDarkMode ? 'black' : '#eee',
+						minHeight: 200,
+						minWidth: width * ( 2 / 3 ),
+						maxWidth: width * 0.9,
+						maxHeight: height * 0.9,
+						padding: 20,
+						...style,
+					} }
+				>
 
-                    <View style={ {
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                    } } >
+					<View
+						style={ {
+							flexDirection: 'row',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+						} }
+					>
 
-                        <Text>{ headerLabel || '' }</Text>
+						<Text>{ headerLabel || '' }</Text>
 
-                        <Button
-                            onPress={ () => setModalVisible( false ) }
-                            title="Close"
-                        />
-                    </View>
+						<Button
+							onPress={ () => setModalVisible( false ) }
+							title="Close"
+						/>
+					</View>
 
-                    <View style={ {
-                        marginTop: 20,
-                    } } >
-    					{ children }
-                    </View>
+					<View
+						style={ { marginTop: 20 } }
+					>
+						{ children }
+					</View>
 
 				</View>
 
-            </Pressable>
+			</Pressable>
 
 		</Pressable>
 

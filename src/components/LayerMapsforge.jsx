@@ -1,9 +1,7 @@
 /**
  * External dependencies
  */
-import React, {
-	useEffect,
-} from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 /**
@@ -12,6 +10,7 @@ import PropTypes from 'prop-types';
 import useRefState from '../compose/useRefState';
 import promiseQueue from '../promiseQueue';
 import usePrevious from '../compose/usePrevious';
+import useRenderStyleOptions from '../compose/useRenderStyleOptions';
 import { MapLayerMapsforgeModule } from '../nativeMapModules';
 
 const LayerMapsforge = ( {
@@ -30,9 +29,7 @@ const LayerMapsforge = ( {
 
 	const renderStylePrev = usePrevious( renderStyle );
 
-	const [
-		hash, setHash,
-	] = useRefState( null );
+	const [hash, setHash] = useRefState( null );
 
 	const { renderStyleDefaultId } = useRenderStyleOptions( ( {
 		renderTheme,
@@ -47,13 +44,13 @@ const LayerMapsforge = ( {
 				renderTheme,
 				renderStyle,
 				renderOverlays,
-				reactTreeIndex
-			).then( newHash => newHash ? setHash( newHash ) : null )
+				reactTreeIndex,
+			).then( newHash => newHash ? setHash( parseInt( newHash, 10 ) ) : null );
 		} );
 	};
 
 	useEffect( () => {
-		if ( null === hash && mapViewNativeTag && mapFile ) {
+		if ( hash === null && mapViewNativeTag && mapFile ) {
 			setHash( false );
 			createLayer();
 		}
@@ -84,7 +81,7 @@ const LayerMapsforge = ( {
 				promiseQueue.enqueue( () => {
 					MapLayerMapsforgeModule.removeLayer( mapViewNativeTag, hash ).then( removedHash => {
 						if ( removedHash ) {
-							createLayer()
+							createLayer();
 						}
 					} );
 				} );

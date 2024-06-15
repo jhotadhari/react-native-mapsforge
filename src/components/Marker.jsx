@@ -1,9 +1,7 @@
 /**
  * External dependencies
  */
-import React, {
-	useEffect,
-} from 'react';
+import React, { useEffect } from 'react';
 import {
 	PixelRatio,
 	NativeEventEmitter,
@@ -35,18 +33,14 @@ const Marker = ( {
 		width: defaultIconSize,		// number
 		height: defaultIconSize,	// number
 		path: '',					// absolute path or empty. if empty, java will fallback to a round icon.
-		anchor: [
-			0, 0,
-		],				// array of two numbers. horizontal and vertical offset from center.
+		anchor: [0, 0],				// array of two numbers. horizontal and vertical offset from center.
 		...( icon || {} ),
 	};
 
-	const [
-		hash, setHash,
-	] = useRefState( null );
+	const [hash, setHash] = useRefState( null );
 
 	useEffect( () => {
-		if ( null === hash && mapViewNativeTag ) {
+		if ( hash === null && mapViewNativeTag ) {
 			setHash( false );
 			promiseQueue.enqueue( () => {
 				return MapMarkerModule.createMarker(
@@ -54,8 +48,8 @@ const Marker = ( {
 					( !! onTab && tabDistanceThreshold > 0 ? tabDistanceThreshold : 0 ),
 					latLong,
 					iconWithDefaults,
-					reactTreeIndex
-				).then( newHash => newHash ? setHash( newHash ) : null )
+					reactTreeIndex,
+				).then( newHash => newHash ? setHash( parseInt( newHash, 10 ) ) : null );
 			} );
 		}
 		return () => {
@@ -90,7 +84,7 @@ const Marker = ( {
 		if ( onTab && hash && mapViewNativeTag ) {
 			const eventEmitter = new NativeEventEmitter();
 			let eventListener = eventEmitter.addListener( 'MarkerTouch', result => {
-				if ( result.hash == hash ) {
+				if ( parseInt( result.hash, 10 ) === hash ) {
 					onTab( result );
 				}
 			} );
@@ -98,7 +92,7 @@ const Marker = ( {
 				eventListener.remove();
 			};
 		}
-	}, [mapViewNativeTag,hash] );
+	}, [mapViewNativeTag, hash] );
 
 	return null;
 };

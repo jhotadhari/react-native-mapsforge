@@ -50,17 +50,13 @@ const MapContainer = ( {
 
 	const ref = useRef( null );
 
-	const [
-		mapViewNativeTag, setMapViewNativeTag,
-	] = useState( null );
+	const [mapViewNativeTag, setMapViewNativeTag] = useState( null );
 
 	const mapLayersCreated = useMapLayersCreated( ref?.current?._nativeTag );
 
 	width = useDefaultWidth( width );
 	height = height || 200;
-	center = center && Array.isArray( center ) && center.length === 2 ? center : [
-		52.5, 13.4,
-	];
+	center = center && Array.isArray( center ) && center.length === 2 ? center : [52.5, 13.4];
 	zoom = zoom || 12;
 	minZoom = minZoom || 3;
 	maxZoom = maxZoom || 50;
@@ -123,7 +119,7 @@ const MapContainer = ( {
 	}, [mapViewNativeTag] );
 
 	let lastIndex = -1;
-	const wrapChildren = children => ! children || ! ref?.current?._nativeTag ? null : React.Children.map( children, ( child, index ) => {
+	const wrapChildren = () => ! children || ! ref?.current?._nativeTag ? null : React.Children.map( children, child => {
 		lastIndex = child?.type?.isMapLayer ? lastIndex + 1 : lastIndex;
 		const newChild = child && child.type ? cloneElement(
 			child,
@@ -149,7 +145,7 @@ const MapContainer = ( {
 			minZoom={ minZoom }
 			maxZoom={ maxZoom }
 		/>
-			{ mapLayersCreated && wrappedChildren }
+		{ mapLayersCreated && wrappedChildren }
 	</ScrollView>;
 };
 

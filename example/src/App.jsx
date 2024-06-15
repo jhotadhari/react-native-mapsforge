@@ -44,7 +44,7 @@ const iconMarkerBase = {
 	height: PixelRatio.getPixelSizeForLayoutSize( 60 ),
 	anchor: [
 		0,
-		- PixelRatio.getPixelSizeForLayoutSize( 60 ) / 2,
+		-PixelRatio.getPixelSizeForLayoutSize( 60 ) / 2,
 	],
 };
 
@@ -92,30 +92,18 @@ const App = () => {
 
 	const promiseQueueState = usePromiseQueueState();
 
-	const [
-		mapFile, setMapFile,
-	] = useState( mapFileOptions[0].value );
-	const [
-		showLayerMapsforge, setShowLayerMapsforge,
-	] = useState( true );
-	const [
-		showMarkers, setShowMarkers,
-	] = useState( true );
+	const [mapFile, setMapFile] = useState( mapFileOptions[0].value );
+	const [showLayerMapsforge, setShowLayerMapsforge] = useState( true );
+	const [showMarkers, setShowMarkers] = useState( true );
 
-	const [
-		mainMapViewId, setMainMapViewId,
-	] = useState( null );
+	const [mainMapViewId, setMainMapViewId] = useState( null );
 
-	const [
-		iconIndex, setIconIndex,
-	] = useState( 0 );
+	const [iconIndex, setIconIndex] = useState( 0 );
 
-    const [renderOverlayOptions, setRenderOverlayOptions] = useState( [] );
+	const [renderOverlayOptions, setRenderOverlayOptions] = useState( [] );
 
-    const [renderOverlays, setRenderOverlays] = useState( [] );
-	const [
-		renderTheme, setRenderTheme,
-	] = useState( renderThemeOptions[0].value );
+	const [renderOverlays, setRenderOverlays] = useState( [] );
+	const [renderTheme, setRenderTheme] = useState( renderThemeOptions[0].value );
 
 	const {
 		renderStyleDefaultId,
@@ -125,9 +113,7 @@ const App = () => {
 		nativeTag: mainMapViewId,
 	} ) );
 
-	const [
-		renderStyle, setRenderStyle,
-	] = useState( renderStyleDefaultId );
+	const [renderStyle, setRenderStyle] = useState( renderStyleDefaultId );
 
 	useEffect( () => {
 		if ( ! renderStyle && renderStyleDefaultId ) {
@@ -141,18 +127,16 @@ const App = () => {
 					return {
 						value,
 						label: renderStyleOptions_.options[value],
-					}
+					};
 				} );
 				setRenderOverlayOptions( newItems );
 			}
 		}
-	}, [renderStyle,renderStyleDefaultId] );
+	}, [renderStyle, renderStyleDefaultId] );
 
-	const [
-		locations, setLocations,
-	] = useState( Array.apply( null, Array( 1000 ) ).map( () => [
+	const [locations, setLocations] = useState( Array.apply( null, Array( 1000 ) ).map( () => [
 		randomNumber( -0.25, 0 ),		// lat
-		randomNumber( -78.6, -78.37 )	// long
+		randomNumber( -78.6, -78.37 ),	// long
 	] ) );
 
 
@@ -165,12 +149,14 @@ const App = () => {
 				backgroundColor={ style.backgroundColor }
 			/>
 
-			{ ! permissionsOk && <View style={ {
-				width,
-				height,
-				justifyContent: 'space-around',
-				alignItems: 'center',
-			} } >
+			{ ! permissionsOk && <View
+				style={ {
+					width,
+					height,
+					justifyContent: 'space-around',
+					alignItems: 'center',
+				} }
+			>
 				<View>
 
 					<Text
@@ -188,13 +174,11 @@ const App = () => {
 				</View>
 			</View> }
 
-			{ permissionsOk && <View >
+			{ permissionsOk && <View>
 
 				<MapContainer
 					height={ height }
-					center={ [
-						-0.10, -78.48
-					] }
+					center={ [-0.10, -78.48] }
 					zoom={ 13 }
 					// minZoom={ 12 }
 					// maxZoom={ 18 }
@@ -233,21 +217,25 @@ const App = () => {
 
 
 
-			<View style={ {
-				...style,
-				position: 'absolute',
-				top: 0,
-				left: 0,
-				width,
-			} }>
-
-				<View style={ {
-					flexDirection: 'row',
+			<View
+				style={ {
+					...style,
+					position: 'absolute',
+					top: 0,
+					left: 0,
 					width,
-					justifyContent: 'space-evenly',
-					alignItems: 'center',
-					marginBottom: 10,
-				} }>
+				} }
+			>
+
+				<View
+					style={ {
+						flexDirection: 'row',
+						width,
+						justifyContent: 'space-evenly',
+						alignItems: 'center',
+						marginBottom: 10,
+					} }
+				>
 					<Button
 						onPress={ () => {
 							setShowMarkers( ! showMarkers );
@@ -270,14 +258,16 @@ const App = () => {
 					/>
 				</View>
 
-				<View style={ {
-					...style,
-					flexDirection: 'row',
-					justifyContent: 'space-evenly',
-					alignItems: 'center',
-					width,
-					marginBottom: 10,
-				} }>
+				<View
+					style={ {
+						...style,
+						flexDirection: 'row',
+						justifyContent: 'space-evenly',
+						alignItems: 'center',
+						width,
+						marginBottom: 10,
+					} }
+				>
 					<Button
 						onPress={ () => {
 							setShowLayerMapsforge( ! showLayerMapsforge );
@@ -308,14 +298,16 @@ const App = () => {
 					/>
 				</View>
 
-				<View style={ {
-					...style,
-					flexDirection: 'row',
-					justifyContent: 'space-evenly',
-					alignItems: 'center',
-					width,
-					marginBottom: 10,
-				} }>
+				<View
+					style={ {
+						...style,
+						flexDirection: 'row',
+						justifyContent: 'space-evenly',
+						alignItems: 'center',
+						width,
+						marginBottom: 10,
+					} }
+				>
 
 					<PickerModalControl
 						headerLabel={ 'Map file' }
@@ -355,7 +347,7 @@ const App = () => {
 						values={ renderOverlays }
 						onChange={ clickedVal => {
 							const existingIndex = renderOverlays.findIndex( val => val === clickedVal );
-							if ( -1 === existingIndex ) {
+							if ( existingIndex === -1 ) {
 								setRenderOverlays( [
 									...renderOverlays,
 									clickedVal,

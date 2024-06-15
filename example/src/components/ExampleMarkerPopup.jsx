@@ -2,9 +2,7 @@
 /**
  * External dependencies
  */
-import React, {
-	useState,
-} from 'react';
+import React, { useState } from 'react';
 import {
 	Button,
 	Text,
@@ -14,36 +12,34 @@ import {
 /**
  * Internal dependencies
  */
-import {
-	FeatureReact,
-} from '../../map';
+import { FeatureReact } from '../../map';
 
 const ExampleMarkerPopup = ( {
 	mapViewNativeTag,
 	latLong,
 } ) => {
 
-	const [open,setOpen] = useState( false );
+	const [open, setOpen] = useState( false );
 
-	const [dimBtn,setDimBtn] = useState( {
+	const [dimBtn, setDimBtn] = useState( {
 		width: 0,
 		height: 0,
 	} );
-	const [dimPop,setDimPop] = useState( {
+	const [dimPop, setDimPop] = useState( {
 		width: 0,
 		height: 0,
 	} );
 
 	const marginBottom = 10;
 
-	return <FeatureReact mapViewNativeTag={ mapViewNativeTag } latLong={ latLong } >
+	return <FeatureReact mapViewNativeTag={ mapViewNativeTag } latLong={ latLong }>
 		<View
 			style={ {
 				minWidth: 50,
 				minHeight: 50,
 				transform: [
-					{ translateX: open ? -dimPop.width/2 : -dimBtn.width/2 },
-					{ translateY: open ? (-dimBtn.height/2 - dimPop.height - marginBottom) : -dimBtn.height/2 },
+					{ translateX: open ? -dimPop.width / 2 : -dimBtn.width / 2 },
+					{ translateY: open ? ( -dimBtn.height / 2 - dimPop.height - marginBottom ) : -dimBtn.height / 2 },
 				],
 			} }
 		>
@@ -55,13 +51,14 @@ const ExampleMarkerPopup = ( {
 					marginBottom,
 					backgroundColor: '#000',
 					padding: 10,
-				} }>
-					<Text>Bla bla bla bla bla</Text>
-					<Text>Bla bla bla bla bla</Text>
-					<Text>Bla bla bla bla bla</Text>
-					<Text>Bla bla bla bla bla</Text>
-					<Text>Bla bla bla bla bla</Text>
-					<Text>Bla bla bla bla bla</Text>
+				} }
+			>
+				<Text>Bla bla bla bla bla</Text>
+				<Text>Bla bla bla bla bla</Text>
+				<Text>Bla bla bla bla bla</Text>
+				<Text>Bla bla bla bla bla</Text>
+				<Text>Bla bla bla bla bla</Text>
+				<Text>Bla bla bla bla bla</Text>
 			</View> }
 
 			<View
