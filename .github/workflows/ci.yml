@@ -51,6 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TURBO_CACHE_DIR: .turbo/android
+      DO_NOT_TRACK: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v3
