@@ -29,17 +29,32 @@ public class MapTileCacheController {
         reactContext = reactContext_;
     }
 
-    public TileCache addCache(String persistableId, MapView mapView ) {
+    public TileCache addCache(String persistableId, MapView mapView, boolean persistent ) {
         TileCache tileCache = AndroidUtil.createTileCache(
             reactContext.getCurrentActivity(),
             persistableId,
             mapView.getModel().displayModel.getTileSize(),
             this.getScreenRatio(),
             mapView.getModel().frameBufferModel.getOverdrawFactor(),
-            true
+			persistent
         );
         this.tileCaches.put( persistableId, tileCache );
         return tileCache;
+    }
+
+    public Boolean removeCache( String persistableId, Boolean forcePurge ) {
+		if ( this.tileCaches.containsKey( persistableId ) ) {
+			TileCache cache = this.tileCaches.get( persistableId );
+			if ( forcePurge ) {
+				cache.purge();
+			} else {
+				cache.destroy();
+			}
+			this.tileCaches.remove( persistableId );
+			return true;
+		} else {
+			return false;
+		}
     }
 
     public TileCache getCache( String persistableId ) {

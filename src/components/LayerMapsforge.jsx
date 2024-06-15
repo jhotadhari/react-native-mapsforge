@@ -3,6 +3,7 @@
  */
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
+import {isNumber} from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -20,12 +21,13 @@ const LayerMapsforge = ( {
 	renderStyle,
 	renderOverlays,
 	reactTreeIndex,
-	// persistentCache,	// ??? TODO
+	cachePersistence,	// 0, 1, 2	// `0` is not persistent. `1` gets purged on certain layer prop changes, but persistent on app restarts. `2` never gets purged.
 } ) => {
 
 	renderTheme = renderTheme || 'DEFAULT';
 	renderStyle = renderStyle || '';
 	renderOverlays = renderOverlays || [];
+	cachePersistence = isNumber( cachePersistence ) ? cachePersistence : 1;
 
 	const renderStylePrev = usePrevious( renderStyle );
 
@@ -43,6 +45,7 @@ const LayerMapsforge = ( {
 				mapFile,
 				renderTheme,
 				renderStyle,
+				cachePersistence,
 				renderOverlays,
 				reactTreeIndex,
 			).then( newHash => newHash ? setHash( parseInt( newHash, 10 ) ) : null );
@@ -79,7 +82,11 @@ const LayerMapsforge = ( {
 
 			if ( shouldRecreate ) {
 				promiseQueue.enqueue( () => {
-					MapLayerMapsforgeModule.removeLayer( mapViewNativeTag, hash ).then( removedHash => {
+					MapLayerMapsforgeModule.removeLayer(
+						mapViewNativeTag,
+						hash,
+						cachePersistence < 2		// forcePurge
+					).then( removedHash => {
 						if ( removedHash ) {
 							createLayer();
 						}
@@ -91,6 +98,7 @@ const LayerMapsforge = ( {
 		mapFile,
 		renderTheme,
 		renderStyle,
+		cachePersistence,
 		( renderOverlays && Array.isArray( renderOverlays ) && renderOverlays.length
 			? renderOverlays.join( '' )
 			: null
@@ -108,6 +116,15 @@ LayerMapsforge.propTypes = {
 	reactTreeIndex: PropTypes.number,
 	renderStyle: PropTypes.string,
 	renderOverlays: PropTypes.array,
+	cachePersistence: function( props, propName, componentName ) {
+		if ( props[propName] && (
+			! isNumber( props[propName] )
+			|| props[propName] > 2
+			|| props[propName] < 0
+		) ) {
+			return new Error( 'Invalid prop `' + propName + '` supplied to' + ' `' + componentName + '`. Validation failed.' );
+		}
+	},
 };
 
 export default LayerMapsforge;

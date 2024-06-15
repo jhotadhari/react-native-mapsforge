@@ -126,6 +126,7 @@
   },
   "dependencies": {
     "events": "^3.3.0",
+    "lodash-es": "^4.17.21",
     "queue-promise": "^2.2.1"
   }
 }

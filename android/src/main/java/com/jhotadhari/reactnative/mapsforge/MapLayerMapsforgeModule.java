@@ -30,8 +30,6 @@ import org.mapsforge.map.rendertheme.XmlRenderThemeMenuCallback;
 
 import java.util.Set;
 
-
-
 public class MapLayerMapsforgeModule extends ReactContextBaseJavaModule {
 
     public String getName() {
@@ -83,13 +81,13 @@ public class MapLayerMapsforgeModule extends ReactContextBaseJavaModule {
         }
     }
 
-    protected Map<Integer, TileRendererLayer> layers;
+    protected Map<Integer, TileRendererLayer> layers = new HashMap<>();
+    protected Map<Integer, String> cachesMap = new HashMap<>();
 
     protected Map<String, XmlRenderThemeStyleMenu> renderThemeStyleMenus = new HashMap<>();
 
     MapLayerMapsforgeModule(ReactApplicationContext context) {
         super(context);
-        layers = new HashMap<>();
     }
 
     public void addRenderThemeStyleMenu( String filePath, int reactTag, XmlRenderThemeStyleMenu renderThemeStyleMenu ) {
@@ -188,6 +186,7 @@ public class MapLayerMapsforgeModule extends ReactContextBaseJavaModule {
             String mapFileName,
             String renderThemePath,
             String renderStyle,
+            int cachePersistence,
             ReadableArray renderOverlays,
             int reactTreeIndex,
             Promise promise
@@ -206,9 +205,12 @@ public class MapLayerMapsforgeModule extends ReactContextBaseJavaModule {
                 return;
             }
 
+			String persistableId = mapFileName + renderThemePath + renderStyle + renderOverlays.toArrayList().toString();
+
             TileCache tileCache = MapTileCacheController.getInstance( this.getReactApplicationContext() ).addCache(
-                mapFileName,
-                mapView
+				persistableId,
+                mapView,
+				cachePersistence > 0
             );
 
             MapDataStore mmapfile = new MapFile( mapfile );
@@ -234,6 +236,7 @@ public class MapLayerMapsforgeModule extends ReactContextBaseJavaModule {
             );
             int hash = tileRendererLayer.hashCode();
             layers.put( hash, tileRendererLayer );
+            cachesMap.put( hash, persistableId );
             promise.resolve(hash);
         } catch(Exception e) {
             promise.reject("Create Event Error", e);
@@ -241,15 +244,30 @@ public class MapLayerMapsforgeModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void removeLayer(int reactTag, int hash, Promise promise) {
+    public void removeLayer(int reactTag, int hash, Boolean forcePurge, Promise promise) {
         try {
+			// Remove from mapView
             MapView mapView = (MapView) Utils.getMapView( this.getReactApplicationContext(), reactTag );
             if ( null == mapView ) {
                 promise.resolve( false );
                 return;
             }
             mapView.getLayerManager().getLayers().remove( layers.get( hash ) );
-            promise.resolve( hash );
+
+			// Remove from layers
+			layers.remove( hash );
+
+			// Remove from tileCacheController
+			String persistableId = cachesMap.get( hash );
+			if ( null != persistableId ) {
+				MapTileCacheController tileCacheController = MapTileCacheController.getInstance( this.getReactApplicationContext() );
+				tileCacheController.removeCache( persistableId, forcePurge );
+			}
+
+			// Remove from cachesMap
+			cachesMap.remove( hash );
+
+			promise.resolve( hash );
         } catch(Exception e) {
             promise.reject("Create Event Error", e);
         }
