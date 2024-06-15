@@ -150,7 +150,7 @@ const App = () => {
 
 	const [
 		locations, setLocations,
-	] = useState( Array.apply( null, Array( 100 ) ).map( () => [
+	] = useState( Array.apply( null, Array( 1000 ) ).map( () => [
 		randomNumber( -0.25, 0 ),		// lat
 		randomNumber( -78.6, -78.37 )	// long
 	] ) );

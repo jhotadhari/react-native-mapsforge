@@ -4,7 +4,6 @@
 import React, {
 	useEffect,
 	useRef,
-	useState,
 } from 'react';
 import {
 	Animated,
@@ -15,6 +14,7 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
+import useRefState from '../compose/useRefState';
 import MapPropTypes from '../MapPropTypes';
 import promiseQueue from '../promiseQueue';
 import { MapFeatureReactModule } from '../nativeMapModules';
@@ -27,7 +27,7 @@ const FeatureReact = ( {
 
 	const [
 		uid, setUid,
-	] = useState( null );
+	] = useRefState( null );
 
 	const fadeAnim = {
 		x: useRef( new Animated.Value(0) ).current,
@@ -41,11 +41,7 @@ const FeatureReact = ( {
 				MapFeatureReactModule.createFeature(
 					mapViewNativeTag,
 					latLong,
-				).then( newUid => {
-					if ( newUid ) {
-						promiseQueue.enqueue( () => setHash( newUid ) );
-					}
-				} );
+				).then( newUid => newUid ? setUid( newUid ) : null );
 			} );
 		}
 		return () => {

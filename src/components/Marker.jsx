@@ -3,18 +3,17 @@
  */
 import React, {
 	useEffect,
-	useState,
 } from 'react';
 import {
 	PixelRatio,
 	NativeEventEmitter,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import Queue from 'queue-promise';
 
 /**
  * Internal dependencies
  */
+import useRefState from '../compose/useRefState';
 import promiseQueue from '../promiseQueue';
 import MapPropTypes from '../MapPropTypes';
 import { MapMarkerModule } from '../nativeMapModules';
@@ -44,26 +43,19 @@ const Marker = ( {
 
 	const [
 		hash, setHash,
-	] = useState( null );
+	] = useRefState( null );
 
 	useEffect( () => {
 		if ( null === hash && mapViewNativeTag ) {
 			setHash( false );
 			promiseQueue.enqueue( () => {
-				MapMarkerModule.createMarker(
+				return MapMarkerModule.createMarker(
 					mapViewNativeTag,
 					( !! onTab && tabDistanceThreshold > 0 ? tabDistanceThreshold : 0 ),
 					latLong,
 					iconWithDefaults,
 					reactTreeIndex
-				).then( newHash => {
-					if ( newHash ) {
-						promiseQueue.enqueue( () => {
-							setHash( newHash );
-						} );
-
-					}
-				} )
+				).then( newHash => newHash ? setHash( newHash ) : null )
 			} );
 		}
 		return () => {

@@ -3,13 +3,13 @@
  */
 import React, {
 	useEffect,
-	useState,
 } from 'react';
 import PropTypes from 'prop-types';
 
 /**
  * Internal dependencies
  */
+import useRefState from '../compose/useRefState';
 import promiseQueue from '../promiseQueue';
 import usePrevious from '../compose/usePrevious';
 import { MapLayerMapsforgeModule } from '../nativeMapModules';
@@ -32,7 +32,7 @@ const LayerMapsforge = ( {
 
 	const [
 		hash, setHash,
-	] = useState( null );
+	] = useRefState( null );
 
 	const { renderStyleDefaultId } = useRenderStyleOptions( ( {
 		renderTheme,
@@ -48,11 +48,7 @@ const LayerMapsforge = ( {
 				renderStyle,
 				renderOverlays,
 				reactTreeIndex
-			).then( newHash => {
-				if ( newHash ) {
-					promiseQueue.enqueue( () => setHash( newHash ) );
-				}
-			} );
+			).then( newHash => newHash ? setHash( newHash ) : null )
 		} );
 	};
 

@@ -3,7 +3,6 @@
  */
 import React, {
 	useEffect,
-	useState,
 } from 'react';
 import {
 	NativeEventEmitter,
@@ -13,6 +12,7 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
+import useRefState from '../compose/useRefState';
 import MapPropTypes from '../MapPropTypes';
 import promiseQueue from '../promiseQueue';
 import { MapPolylineModule } from '../nativeMapModules';
@@ -30,7 +30,7 @@ const Polyline = ( {
 
 	const [
 		hash, setHash,
-	] = useState( null );
+	] = useRefState( null );
 
 	const create = () => {
 		promiseQueue.enqueue( () => {
@@ -40,13 +40,7 @@ const Polyline = ( {
 				positions,
 				file,
 				reactTreeIndex
-			).then( newHash => {
-				if ( newHash ) {
-					promiseQueue.enqueue( () => {
-						setHash( newHash );
-					} );
-				}
-			} );
+			).then( newHash => newHash ? setHash( newHash ) : null )
 		} );
 	};
 	useEffect( () => {
