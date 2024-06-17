@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {isNumber} from 'lodash-es';
 
@@ -32,6 +32,7 @@ const LayerMapsforge = ( {
 	const renderStylePrev = usePrevious( renderStyle );
 
 	const [hash, setHash] = useRefState( null );
+	const [triggerCreateNew, setTriggerCreateNew] = useState( null );
 
 	const { renderStyleDefaultId } = useRenderStyleOptions( ( {
 		renderTheme,
@@ -39,6 +40,7 @@ const LayerMapsforge = ( {
 	} ) );
 
 	const createLayer = () => {
+		setHash( false );
 		promiseQueue.enqueue( () => {
 			MapLayerMapsforgeModule.createLayer(
 				mapViewNativeTag,
@@ -54,44 +56,52 @@ const LayerMapsforge = ( {
 
 	useEffect( () => {
 		if ( hash === null && mapViewNativeTag && mapFile ) {
-			setHash( false );
 			createLayer();
 		}
 		return () => {
 			if ( hash && mapViewNativeTag ) {
 				promiseQueue.enqueue( () => {
-					MapLayerMapsforgeModule.removeLayer( mapViewNativeTag, hash );
+					MapLayerMapsforgeModule.removeLayer(
+						mapViewNativeTag,
+						hash,
+						cachePersistence < 2		// forcePurge
+					);
 				} );
 			}
 		};
 	}, [
 		mapViewNativeTag,
 		!! hash,
+		triggerCreateNew,
 	] );
 
 	useEffect( () => {
-		if ( hash && mapViewNativeTag ) {
-			let shouldRecreate = true;
-			if (
-				renderStyle !== renderStylePrev
-				&& ( ! renderStylePrev || ! renderStylePrev?.length )
-				&& ( renderStyle && renderStyleDefaultId && renderStyle === renderStyleDefaultId )
-			) {
-				shouldRecreate = false;
-			}
-
-			if ( shouldRecreate ) {
-				promiseQueue.enqueue( () => {
-					MapLayerMapsforgeModule.removeLayer(
-						mapViewNativeTag,
-						hash,
-						cachePersistence < 2		// forcePurge
-					).then( removedHash => {
-						if ( removedHash ) {
-							createLayer();
-						}
+		if ( mapViewNativeTag ) {
+			if ( hash ) {
+				let shouldRecreate = true;
+				if (
+					renderStyle !== renderStylePrev
+					&& ( ! renderStylePrev || ! renderStylePrev?.length )
+					&& ( renderStyle && renderStyleDefaultId && renderStyle === renderStyleDefaultId )
+				) {
+					shouldRecreate = false;
+				}
+				if ( shouldRecreate ) {
+					promiseQueue.enqueue( () => {
+						MapLayerMapsforgeModule.removeLayer(
+							mapViewNativeTag,
+							hash,
+							cachePersistence < 2		// forcePurge
+						).then( removedHash => {
+							if ( removedHash ) {
+								setHash( null )
+								setTriggerCreateNew( Math.random() );
+							}
+						} );
 					} );
-				} );
+				}
+			} else if ( hash === null && mapFile ) {
+				setTriggerCreateNew( Math.random() );
 			}
 		}
 	}, [

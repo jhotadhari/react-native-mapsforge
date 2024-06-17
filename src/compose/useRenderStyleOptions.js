@@ -27,7 +27,7 @@ const useRenderStyleOptions = ( {
 	useEffect( () => {
 		const eventEmitter = new NativeEventEmitter();
 		let eventListener = eventEmitter.addListener( 'RenderThemeParsed', result => {
-			if ( ! renderStyleOptions.length && result && renderTheme === result.filePath ) {
+			if ( result && renderTheme === result.filePath ) {
 				setRenderStyleOptions( Object.values( result.collection ) );
 				if ( ! renderStyleDefaultId ) {
 					const defaultStyle = Object.values( result.collection ).find( obj => obj.default );
@@ -44,21 +44,15 @@ const useRenderStyleOptions = ( {
 	}, [nativeTag] );
 
 	useEffect( () => {
-		if ( ! renderStyleOptions.length ) {
-			MapLayerMapsforgeModule.getRenderThemeOptions( renderTheme ).then( res => {
-				if ( res ) {
-					setRenderStyleOptions( Object.values( res ) );
-
-					if ( ! renderStyleDefaultId ) {
-						const defaultStyle = Object.values( res ).find( obj => obj.default );
-						if ( undefined !== defaultStyle && !! defaultStyle ) {
-							setRenderStyleDefault( defaultStyle.value );
-						}
-
-					}
+		MapLayerMapsforgeModule.getRenderThemeOptions( renderTheme ).then( res => {
+			if ( res ) {
+				setRenderStyleOptions( Object.values( res ) );
+				const defaultStyle = Object.values( res ).find( obj => obj.default );
+				if ( undefined !== defaultStyle && !! defaultStyle ) {
+					setRenderStyleDefault( defaultStyle.value );
 				}
-			} );
-		}
+			}
+		} );
 	}, [nativeTag, renderTheme] );
 
 	return {

@@ -119,7 +119,7 @@ public class MapLayerMapsforgeModule extends ReactContextBaseJavaModule {
 
         for ( Object key : layers.keySet() ) {
             XmlRenderThemeStyleLayer layer = (XmlRenderThemeStyleLayer) layers.get(String.valueOf(key));
-            if ( ! layer.isEnabled() && layer.isVisible() ) {
+            if ( null != layer && ! layer.isEnabled() && layer.isVisible() ) {
 
                 WritableMap responseItem = new WritableNativeMap();
                 WritableMap opts = new WritableNativeMap();
@@ -252,7 +252,14 @@ public class MapLayerMapsforgeModule extends ReactContextBaseJavaModule {
                 promise.resolve( false );
                 return;
             }
-            mapView.getLayerManager().getLayers().remove( layers.get( hash ) );
+
+            TileRendererLayer layer = layers.get( hash );
+            if ( null == layer )  {
+                promise.resolve( false );
+                return;
+            }
+
+            mapView.getLayerManager().getLayers().remove( layer );
 
 			// Remove from layers
 			layers.remove( hash );
