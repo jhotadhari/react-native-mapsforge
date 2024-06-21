@@ -60,13 +60,6 @@ const icons = [
 	},
 ];
 
-const LiftViewIdStateUp = ( { mapViewNativeTag, setMainMapViewId } ) => {
-	useEffect( () => {
-		setMainMapViewId( mapViewNativeTag );
-	}, [mapViewNativeTag] );
-	return null;
-};
-
 const renderThemeOptions = [
 	{ label: 'Elements', value: '/storage/emulated/0/Documents/orux/mapstyles/Elements.xml' },
 	{ label: 'Alti', value: '/storage/emulated/0/Documents/orux/mapstyles/Alti.xml' },
@@ -180,6 +173,8 @@ const App = () => {
 					height={ height }
 					center={ [-0.10, -78.48] }
 					zoom={ 13 }
+					mapViewNativeTag={ mainMapViewId }
+					setMapViewNativeTag={ setMainMapViewId }
 					// minZoom={ 12 }
 					// maxZoom={ 18 }
 				>

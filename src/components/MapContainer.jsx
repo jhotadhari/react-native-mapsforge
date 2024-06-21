@@ -46,11 +46,15 @@ const MapContainer = ( {
 	zoom,
 	minZoom,
 	maxZoom,
+	mapViewNativeTag,	// It's not possible to control the nativeTag. It's a prop just to lift the state up.
+	setMapViewNativeTag,
 } ) => {
 
 	const ref = useRef( null );
 
-	const [mapViewNativeTag, setMapViewNativeTag] = useState( null );
+	const [mapViewNativeTag_, setMapViewNativeTag_] = useState( null );
+	mapViewNativeTag = mapViewNativeTag ? mapViewNativeTag : mapViewNativeTag_;
+	setMapViewNativeTag = setMapViewNativeTag ? setMapViewNativeTag : setMapViewNativeTag_;
 
 	const mapLayersCreated = useMapLayersCreated( ref?.current?._nativeTag );
 
@@ -64,6 +68,7 @@ const MapContainer = ( {
 	useEffect( () => {
 		setMapViewNativeTag( findNodeHandle( ref.current ) );
 	}, [] );
+
 	useEffect( () => {
 		if ( mapViewNativeTag ) {
 			createFragment( mapViewNativeTag );
