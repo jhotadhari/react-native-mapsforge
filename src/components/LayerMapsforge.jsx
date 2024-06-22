@@ -3,7 +3,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import {isNumber} from 'lodash-es';
+import {isBoolean, isNumber} from 'lodash-es';
 
 /**
  * Internal dependencies
@@ -19,6 +19,8 @@ const LayerMapsforge = ( {
 	mapFile,
 	renderTheme,
 	renderStyle,
+	demFolderName,
+	hillshadingEnableInterpolationOverlap,
 	renderOverlays,
 	reactTreeIndex,
 	cachePersistence,	// 0, 1, 2	// `0` is not persistent. `1` gets purged on certain layer prop changes, but persistent on app restarts. `2` never gets purged.
@@ -26,6 +28,8 @@ const LayerMapsforge = ( {
 
 	renderTheme = renderTheme || 'DEFAULT';
 	renderStyle = renderStyle || '';
+	demFolderName = demFolderName || '';
+	hillshadingEnableInterpolationOverlap = isBoolean( hillshadingEnableInterpolationOverlap ) ? hillshadingEnableInterpolationOverlap : false;
 	renderOverlays = renderOverlays || [];
 	cachePersistence = isNumber( cachePersistence ) ? cachePersistence : 1;
 
@@ -47,6 +51,8 @@ const LayerMapsforge = ( {
 				mapFile,
 				renderTheme,
 				renderStyle,
+				demFolderName,
+				hillshadingEnableInterpolationOverlap,
 				cachePersistence,
 				renderOverlays,
 				reactTreeIndex,
@@ -108,6 +114,8 @@ const LayerMapsforge = ( {
 		mapFile,
 		renderTheme,
 		renderStyle,
+		demFolderName,
+		hillshadingEnableInterpolationOverlap,
 		cachePersistence,
 		( renderOverlays && Array.isArray( renderOverlays ) && renderOverlays.length
 			? renderOverlays.join( '' )

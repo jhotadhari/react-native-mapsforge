@@ -8,10 +8,16 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 
+import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.mapsforge.map.android.util.AndroidUtil;
 import org.mapsforge.map.android.view.MapView;
-import org.mapsforge.map.datastore.MapDataStore;
 import org.mapsforge.map.layer.cache.TileCache;
+import org.mapsforge.map.layer.hills.DemFolder;
+import org.mapsforge.map.layer.hills.DemFolderFS;
+import org.mapsforge.map.layer.hills.HillsRenderConfig;
+import org.mapsforge.map.layer.hills.MemoryCachingHgtReaderTileSource;
+import org.mapsforge.map.layer.hills.ShadingAlgorithm;
+import org.mapsforge.map.layer.hills.SimpleShadingAlgorithm;
 import org.mapsforge.map.layer.renderer.TileRendererLayer;
 import org.mapsforge.map.reader.MapFile;
 import org.mapsforge.map.rendertheme.ExternalRenderTheme;
@@ -186,6 +192,8 @@ public class MapLayerMapsforgeModule extends ReactContextBaseJavaModule {
             String mapFileName,
             String renderThemePath,
             String renderStyle,
+            String demFolderName,
+            Boolean hillshadingEnableInterpolationOverlap,
             int cachePersistence,
             ReadableArray renderOverlays,
             int reactTreeIndex,
@@ -205,20 +213,39 @@ public class MapLayerMapsforgeModule extends ReactContextBaseJavaModule {
                 return;
             }
 
-			String persistableId = mapFileName + renderThemePath + renderStyle + renderOverlays.toArrayList().toString();
+			// Setup hillshading
+			File demFolder = new File( (String) demFolderName );
+			DemFolder anyDems = new DemFolderFS( demFolder );
+			ShadingAlgorithm shadingAlgorithm = new SimpleShadingAlgorithm();
+			MemoryCachingHgtReaderTileSource hillTileSource = new MemoryCachingHgtReaderTileSource(
+				anyDems,
+				shadingAlgorithm,
+				AndroidGraphicFactory.INSTANCE
+			);
+			hillTileSource.setEnableInterpolationOverlap( hillshadingEnableInterpolationOverlap );
+			HillsRenderConfig hillsConfig = new HillsRenderConfig( hillTileSource );
+			hillsConfig.indexOnThread();
 
+			// Define persistableId
+			String persistableId = mapFileName
+				+ renderThemePath
+				+ renderStyle
+				+ renderOverlays.toArrayList().toString()
+				+ demFolderName.toString()
+				+ hillshadingEnableInterpolationOverlap.toString();
+
+			// Setup tileCache
             TileCache tileCache = MapTileCacheController.getInstance( this.getReactApplicationContext() ).addCache(
 				persistableId,
                 mapView,
 				cachePersistence > 0
             );
 
-            MapDataStore mmapfile = new MapFile( mapfile );
-
+			// Create Tile Renderer Layer
             TileRendererLayer tileRendererLayer = AndroidUtil.createTileRendererLayer(
                     tileCache,
                     mapView.getModel().mapViewPosition,
-                    mmapfile,
+					new MapFile( mapfile ),
                     getRenderTheme(
                             reactTag,
                             renderThemePath,
@@ -227,16 +254,22 @@ public class MapLayerMapsforgeModule extends ReactContextBaseJavaModule {
                     ),
                     false,
                     true,
-                    false
+                    false,
+					hillsConfig
             );
 
+			// Add to map
             mapView.getLayerManager().getLayers().add(
                     Math.min( mapView.getLayerManager().getLayers().size(), (int) reactTreeIndex ),
                     tileRendererLayer
             );
+
+			// Store layer and cache
             int hash = tileRendererLayer.hashCode();
             layers.put( hash, tileRendererLayer );
             cachesMap.put( hash, persistableId );
+
+			// Resolve layer hash
             promise.resolve(hash);
         } catch(Exception e) {
             promise.reject("Create Event Error", e);
