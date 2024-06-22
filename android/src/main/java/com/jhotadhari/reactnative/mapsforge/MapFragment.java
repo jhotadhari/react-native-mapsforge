@@ -15,7 +15,6 @@
  */
 package com.jhotadhari.reactnative.mapsforge;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,12 +29,13 @@ import com.facebook.react.bridge.WritableNativeMap;
 import org.mapsforge.core.model.LatLong;
 import org.mapsforge.core.model.MapPosition;
 import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
-import org.mapsforge.map.android.util.AndroidPreferences;
 import org.mapsforge.map.android.view.MapView;
+import org.mapsforge.map.layer.Layer;
 import org.mapsforge.map.model.MapViewPosition;
-import org.mapsforge.map.model.common.PreferencesFacade;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 /**
  * Based on on this persons work: a7med on 08.03.18.
@@ -45,7 +45,6 @@ import java.util.ArrayList;
 public class MapFragment extends Fragment {
     // Abstract variables for displaying the map
     protected MapView mapView;
-    protected PreferencesFacade preferencesFacade;
 
     protected ReactContext reactContext;
 
@@ -83,30 +82,6 @@ public class MapFragment extends Fragment {
      * have something visible on the map.
      */
     protected void createLayers() {
-
-
-//        OpenStreetMapMapnik tileSource = OpenStreetMapMapnik.INSTANCE;
-//        downloadLayer = new TileDownloadLayer(
-//                this.tileCaches.get(0),
-//                this.mapView.getModel().mapViewPosition,
-//                tileSource,
-//                AndroidGraphicFactory.INSTANCE
-//        );
-//        mapView.getLayerManager().getLayers().add( downloadLayer );
-
-
-//        Log.d("MAPFILE", String.valueOf(getMapFileName()));
-//        TileRendererLayer tileRendererLayer = AndroidUtil.createTileRendererLayer(
-//                this.tileCaches.get(0),
-//                this.mapView.getModel().mapViewPosition,
-//                getMapFile(),
-//                getRenderTheme(),
-//                false,
-//                true,
-//                false
-//        );
-//        this.mapView.getLayerManager().getLayers().add(tileRendererLayer);
-
         WritableMap params = new WritableNativeMap();
         params.putInt( "nativeTag", this.getId() );
         Utils.sendEvent( reactContext, "MapLayersCreated", params );
@@ -127,7 +102,6 @@ public class MapFragment extends Fragment {
         propZoom = zoom;
         propMinZoom = minZoom;
         propMaxZoom = maxZoom;
-
     }
 
     /**
@@ -155,10 +129,8 @@ public class MapFragment extends Fragment {
     /**
      * Template method to create the map views.
      */
-    protected void createMapViews(View v)
-    {
+    protected void createMapViews(View v) {
         mapView = initMapView(v);
-        mapView.getModel().init(this.preferencesFacade);
         mapView.setClickable(true);
         mapView.getMapScaleBar().setVisible(true);
         mapView.setBuiltInZoomControls(false);
@@ -168,66 +140,8 @@ public class MapFragment extends Fragment {
         mapView.setCenter(new LatLong(propCenterLatLong.latitude, propCenterLatLong.longitude));
     }
 
-    /**
-     * Creates the shared preferences that are being used to store map view data over
-     * activity restarts.
-     */
-    protected void createSharedPreferences() {
-        this.preferencesFacade = new AndroidPreferences(getActivity().getSharedPreferences(getPersistableId(), Context.MODE_PRIVATE));
-    }
-
-    /**
-     * Extracts the initial position from the map file, falling back onto the value supplied
-     * by getDefaultInitialPosition if there is no initial position coded into the map file.
-     * You will only need to override this method if you do not want the initial position extracted
-     * from the map file.
-     *
-     * @return the initial position encoded in the map file or a fallback value.
-     */
     protected MapPosition getInitialPosition() {
-//        final MapDataStore mapFile = getMapFile();
-//        if (mapFile.startPosition() != null) {
-//            Byte startZoomLevel = mapFile.startZoomLevel();
-//            if (startZoomLevel == null)
-//            {
-//                // it is actually possible to have no start zoom level in the file
-//                startZoomLevel = new Byte((byte) propZoom);
-//            }
-//            return new MapPosition(mapFile.startPosition(), startZoomLevel);
-//        }
         return new MapPosition(propCenterLatLong, (byte) propZoom);
-    }
-
-    /**
-     * The persistable ID is used to store settings information, like the center of the last view
-     * and the zoomlevel. By default the simple name of the class is used. The value is not user
-     * visibile.
-     *
-     * @return the id that is used to save this mapview.
-     */
-    protected String getPersistableId()
-    {
-        return String.valueOf( this.getId() );
-    }
-
-    /**
-     * Configuration method to set if a map view activity will have zoom controls.
-     *
-     * @return true if the map has standard zoom controls.
-     */
-    protected boolean hasZoomControls()
-    {
-        return true;
-    }
-
-    /**
-     * Configuration method to set if map view activity's zoom controls hide automatically.
-     *
-     * @return true if zoom controls hide automatically.
-     */
-    protected boolean isZoomControlsAutoHide()
-    {
-        return true;
     }
 
     /**
@@ -276,48 +190,50 @@ public class MapFragment extends Fragment {
          * automatically adapt the rendering for the device.
          */
         AndroidGraphicFactory.createInstance(this.getActivity().getApplication());
-
-        createSharedPreferences();
         createMapViews(v);
         checkPermissionsAndCreateLayersAndControls();
 
         return v;
     }
 
-    /**
-     * Android Activity life cycle method.
-     */
     @Override
     public void onPause() {
-        mapView.getModel().save( this.preferencesFacade );
-        this.preferencesFacade.save();
+		for ( Layer layer : getMapView().getLayerManager().getLayers()) {
+            try {
+				layer.getClass().getMethod("onPause").invoke( layer );
+            } catch (NoSuchMethodException e) {
+				//
+            } catch (InvocationTargetException e) {
+				//
+            } catch (IllegalAccessException e) {
+				//
+            }
+        }
         super.onPause();
     }
 
-    /**
-     * Android Activity life cycle method.
-     */
+	@Override
+	public void onResume() {
+		super.onResume();
+		for ( Layer layer : getMapView().getLayerManager().getLayers()) {
+			try {
+				layer.getClass().getMethod("onResume").invoke( layer );
+			} catch (NoSuchMethodException e) {
+				//
+			} catch (InvocationTargetException e) {
+				//
+			} catch (IllegalAccessException e) {
+				//
+			}
+		}
+	}
+
     @Override
     public void onDestroy() {
         mapView.destroyAll();
         AndroidGraphicFactory.clearResourceMemoryCache();
-//        tileCaches.clear();   // ??? TODO clear cache for this fragment.
         super.onDestroy();
     }
-
-//    /**
-//     * Hook to purge tile caches.
-//     * By default we purge every tile cache that has been added to the tileCaches list.
-//     */
-//    protected void purgeTileCaches()
-//    {
-//        for (TileCache tileCache : tileCaches)
-//        {
-//            tileCache.purge();
-//        }
-//
-//        tileCaches.clear();
-//    }
 
     /**
      * Creates a map view using an XML layout file supplied by getLayoutId() and finds
@@ -325,11 +241,8 @@ public class MapFragment extends Fragment {
      *
      * @return the Android MapView for this activity.
      */
-    protected MapView initMapView(View v)
-    {
+    protected MapView initMapView(View v) {
         return (MapView) v.findViewById(getMapViewId());
     }
-
-
 
 }
