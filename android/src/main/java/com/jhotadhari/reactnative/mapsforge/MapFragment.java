@@ -23,7 +23,9 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 
 import org.mapsforge.core.model.LatLong;
@@ -196,8 +198,25 @@ public class MapFragment extends Fragment {
         return v;
     }
 
+    protected void sendLifecycleEvent( String type ) {
+        WritableMap params = new WritableNativeMap();
+        params.putInt( "nativeTag", this.getId() );
+        params.putString( "type", type );
+        LatLong latLong = mapView.getModel().mapViewPosition.getMapPosition().latLong;
+        WritableArray latLongA = new WritableNativeArray();
+        latLongA.pushDouble( latLong.latitude );
+        latLongA.pushDouble( latLong.longitude );
+        params.putArray( "center",  latLongA );
+        params.putInt( "zoom",  mapView.getModel().mapViewPosition.getZoomLevel() );
+        Utils.sendEvent( reactContext, "MapLifecycle", params );
+
+    }
+
     @Override
     public void onPause() {
+
+        sendLifecycleEvent( "onPause" );
+
 		for ( Layer layer : getMapView().getLayerManager().getLayers()) {
             try {
 				layer.getClass().getMethod("onPause").invoke( layer );
@@ -215,6 +234,9 @@ public class MapFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+
+        sendLifecycleEvent( "onResume" );
+
 		for ( Layer layer : getMapView().getLayerManager().getLayers()) {
 			try {
 				layer.getClass().getMethod("onResume").invoke( layer );

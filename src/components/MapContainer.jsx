@@ -48,6 +48,8 @@ const MapContainer = ( {
 	maxZoom,
 	mapViewNativeTag,	// It's not possible to control the nativeTag. It's a prop just to lift the state up.
 	setMapViewNativeTag,
+	onPause,
+	onResume,
 } ) => {
 
 	const ref = useRef( null );
@@ -116,6 +118,29 @@ const MapContainer = ( {
 		let eventListener = eventEmitter.addListener( 'MapZoom', result => {
 			if ( result.nativeTag === mapViewNativeTag ) {
 				// console.log( 'debug on zoom', result ); // debug
+			}
+		} );
+		return () => {
+			eventListener.remove();
+		};
+	}, [mapViewNativeTag] );
+
+	useEffect( () => {
+		const eventEmitter = new NativeEventEmitter();
+		let eventListener = eventEmitter.addListener( 'MapLifecycle', result => {
+			if ( result.nativeTag === mapViewNativeTag ) {
+				switch( result.type ) {
+					case 'onPause':
+						if ( onPause ) {
+							onPause( result );
+						}
+						break;
+					case 'onResume':
+						if ( onResume ) {
+							onResume( result );
+						}
+						break;
+				}
 			}
 		} );
 		return () => {
