@@ -16,6 +16,7 @@
 package com.jhotadhari.reactnative.mapsforge;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,15 +36,11 @@ import org.mapsforge.map.android.view.MapView;
 import org.mapsforge.map.layer.Layer;
 import org.mapsforge.map.model.MapViewPosition;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
-/**
- * Based on on this persons work: a7med on 08.03.18.
- * https://stackoverflow.com/questions/15494210/fragment-support-for-mapsforge#answer-49278354
- *
- */
 public class MapFragment extends Fragment {
     // Abstract variables for displaying the map
     protected MapView mapView;
@@ -55,6 +52,8 @@ public class MapFragment extends Fragment {
     protected static int propMinZoom = 3;
     protected static int propMaxZoom = 50;
     protected LatLong propCenterLatLong;
+
+    protected String hardwareKeyListenerUid = null;
 
     /**
      * Getter for the mapView instance.
@@ -127,6 +126,67 @@ public class MapFragment extends Fragment {
         return 0.7f;
     }
 
+    protected void addHardwareKeyListener() {
+        try {
+            HardwareKeyListener hardwareKeyListener = new HardwareKeyListener() {
+                @Override
+                public boolean onKeyUp(int keyCode, KeyEvent event) {
+                    String keyCodeString = null;
+                    for ( Field field : KeyEvent.class.getFields() ) {
+                        if ( null == keyCodeString && field.getName().startsWith( "KEYCODE_" ) ) {
+                            try {
+                                int fieldKeyCode = (int) field.get( event );
+                                if ( fieldKeyCode == keyCode ) {
+                                    keyCodeString = field.getName();
+                                }
+                            } catch (IllegalAccessException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                    WritableMap params = new WritableNativeMap();
+                    params.putInt( "keyCode", keyCode );
+                    params.putString( "keyCodeString", keyCodeString );
+                    Utils.sendEvent( reactContext, "onHardwareKeyUp", params );
+                    return true;
+                }
+            };
+            Class[] cArg = new Class[1];
+            cArg[0] = HardwareKeyListener.class;
+            Method meth = reactContext.getCurrentActivity().getClass().getMethod(
+                    "addHardwareKeyListener",
+                    cArg
+            );
+            Object value = meth.invoke(
+                reactContext.getCurrentActivity(),
+                hardwareKeyListener
+            );
+            String uid = (String) value;
+            hardwareKeyListenerUid = uid;
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void removeHardwareKeyListener() {
+        try {
+            if ( null != hardwareKeyListenerUid ) {
+                Class[] cArg = new Class[1];
+                cArg[0] = String.class;
+                Method meth = reactContext.getCurrentActivity().getClass().getDeclaredMethod(
+                        "removeHardwareKeyListener",
+                        cArg
+                );
+                meth.invoke(
+                        reactContext.getCurrentActivity(),
+                        hardwareKeyListenerUid
+                );
+                hardwareKeyListenerUid = null;
+            }
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Template method to create the map views.
@@ -194,6 +254,7 @@ public class MapFragment extends Fragment {
         AndroidGraphicFactory.createInstance(this.getActivity().getApplication());
         createMapViews(v);
         checkPermissionsAndCreateLayersAndControls();
+        addHardwareKeyListener();
 
         return v;
     }
@@ -253,6 +314,7 @@ public class MapFragment extends Fragment {
     @Override
     public void onDestroy() {
         mapView.destroyAll();
+        removeHardwareKeyListener();
         AndroidGraphicFactory.clearResourceMemoryCache();
         super.onDestroy();
     }
