@@ -43,7 +43,7 @@ public class MapInputListener implements InputListener {
         latLongA.pushDouble( latLong.latitude );
         latLongA.pushDouble( latLong.longitude );
         params.putArray( "center",  latLongA );
-        Utils.sendEvent( reactContext, "MapMove", params );
+        Utils.sendEvent( reactContext, "onMoveStart", params );
     };
 
     @Override

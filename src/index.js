@@ -8,6 +8,7 @@ import Polyline from './components/Polyline.jsx';
 import MapPropTypes from './MapPropTypes';
 import useRenderStyleOptions from './compose/useRenderStyleOptions';
 import usePromiseQueueState from './compose/usePromiseQueueState';
+import useMapEvents from './compose/useMapEvents';
 import promiseQueue from './promiseQueue';
 import * as nativeMapModules from './nativeMapModules';
 
@@ -19,6 +20,7 @@ export {
 	MapPropTypes,
 	useRenderStyleOptions,
 	usePromiseQueueState,
+	useMapEvents,
 	promiseQueue,
 	nativeMapModules,
 };

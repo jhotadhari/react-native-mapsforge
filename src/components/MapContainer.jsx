@@ -103,30 +103,6 @@ const MapContainer = ( {
 
 	useEffect( () => {
 		const eventEmitter = new NativeEventEmitter();
-		let eventListener = eventEmitter.addListener( 'MapMove', result => {
-			if ( result.nativeTag === mapViewNativeTag ) {
-				// console.log( 'debug on move', result ); // debug
-			}
-		} );
-		return () => {
-			eventListener.remove();
-		};
-	}, [mapViewNativeTag] );
-
-	useEffect( () => {
-		const eventEmitter = new NativeEventEmitter();
-		let eventListener = eventEmitter.addListener( 'MapZoom', result => {
-			if ( result.nativeTag === mapViewNativeTag ) {
-				// console.log( 'debug on zoom', result ); // debug
-			}
-		} );
-		return () => {
-			eventListener.remove();
-		};
-	}, [mapViewNativeTag] );
-
-	useEffect( () => {
-		const eventEmitter = new NativeEventEmitter();
 		let eventListener = eventEmitter.addListener( 'MapLifecycle', result => {
 			if ( result.nativeTag === mapViewNativeTag ) {
 				switch( result.type ) {

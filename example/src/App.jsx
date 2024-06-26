@@ -23,9 +23,12 @@ import {
 import {
 	MapContainer,
 	LayerMapsforge,
+	LayerDownload,
+	LayerHillshading,
 	Marker,
 	Polyline,
 	usePromiseQueueState,
+	useMapEvents,
 	promiseQueue,
 	useRenderStyleOptions,
 	nativeMapModules,
@@ -72,6 +75,27 @@ const mapFileOptions = [
 	{ label: 'Colombia', value: '/storage/emulated/0/Documents/orux/mapfiles/Colombia_oam.osm.map' },
 ];
 
+
+const MapEvents = ( {
+	nativeTag,
+} ) => {
+
+	useMapEvents( {
+		nativeTag,
+		// onMoveStart: event => {
+		// 	console.log( 'debug onMoveStart', event ); // debug
+		// },
+		// onZoom: event => {
+		// 	console.log( 'debug zoom event', event ); // debug
+		// },
+		onFrameBuffer: event => {
+			console.log( 'debug frameBuffer event', event ); // debug
+		},
+	} );
+
+	return null;
+};
+
 const App = () => {
 
 	const isDarkMode = useColorScheme() === 'dark';
@@ -97,6 +121,12 @@ const App = () => {
 
 	const [renderOverlays, setRenderOverlays] = useState( [] );
 	const [renderTheme, setRenderTheme] = useState( renderThemeOptions[0].value );
+
+
+
+
+
+
 
 	const {
 		renderStyleDefaultId,
@@ -127,7 +157,7 @@ const App = () => {
 		}
 	}, [renderStyle, renderStyleDefaultId] );
 
-	const [locations, setLocations] = useState( Array.apply( null, Array( 1000 ) ).map( () => [
+	const [locations, setLocations] = useState( Array.apply( null, Array( 10 ) ).map( () => [
 		randomNumber( -0.25, 0 ),		// lat
 		randomNumber( -78.6, -78.37 ),	// long
 	] ) );
@@ -171,26 +201,38 @@ const App = () => {
 
 				<MapContainer
 					height={ height }
-					center={ [-0.10, -78.48] }
+					center={ [-2.10, -78.48] }
 					zoom={ 13 }
 					mapViewNativeTag={ mainMapViewId }
 					setMapViewNativeTag={ setMainMapViewId }
 					// minZoom={ 12 }
 					// maxZoom={ 18 }
+					onPause={ result => {
+						console.log( 'debug lifecycle event onPause', result );
+					} }
+					onResume={ result => {
+						console.log( 'debug lifecycle event onResume', result );
+					} }
 				>
 
-					<LiftViewIdStateUp setMainMapViewId={ setMainMapViewId } />
+					<MapEvents
+						nativeTag={ mainMapViewId }
+					/>
 
 					{ showLayerMapsforge && <LayerMapsforge
 						mapFile={ mapFile }
 						renderTheme={ renderTheme }
 						renderStyle={ renderStyle }
 						renderOverlays={ renderOverlays }
+						cachePersistence={ 0 }
+						demFolderName={ '/storage/emulated/0/Documents/orux/dem' }
+						hillshadingEnableInterpolationOverlap={ true }
 					/> }
 
+
 					<Polyline
-						// positions={ locations }
-						file={ '/storage/emulated/0/Documents/orux/tracklogs/2024-06-10 1713__20240610_1713.gpx' }
+						positions={ locations }
+						// file={ '/storage/emulated/0/Documents/orux/tracklogs/2024-06-10 1713__20240610_1713.gpx' }
 						onTab={ res => {
 							console.log( 'debug Polyline res', res ); // debug
 						} }

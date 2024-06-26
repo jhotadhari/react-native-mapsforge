@@ -24,9 +24,7 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 
 import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 
 import org.mapsforge.core.model.LatLong;
@@ -35,6 +33,7 @@ import org.mapsforge.map.android.graphics.AndroidGraphicFactory;
 import org.mapsforge.map.android.view.MapView;
 import org.mapsforge.map.layer.Layer;
 import org.mapsforge.map.model.MapViewPosition;
+import org.mapsforge.map.model.common.Observer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -42,8 +41,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 public class MapFragment extends Fragment {
-    // Abstract variables for displaying the map
-    protected MapView mapView;
+
+	protected MapView mapView;
+
+	protected Observer observer = null;
 
     protected ReactContext reactContext;
 
@@ -91,10 +92,14 @@ public class MapFragment extends Fragment {
         this.mapView.addInputListener( mapInputListener );
     }
 
+	protected FixedWindowRateLimiter rateLimiter;
+
     MapFragment( ReactContext reactContext_, ArrayList center, int zoom, int minZoom, int maxZoom ) {
         super();
 
         reactContext = reactContext_;
+
+		rateLimiter = new FixedWindowRateLimiter( 100, 1 );
 
         propCenterLatLong = new LatLong(
             (double) center.get(0),
@@ -255,22 +260,43 @@ public class MapFragment extends Fragment {
         createMapViews(v);
         checkPermissionsAndCreateLayersAndControls();
         addHardwareKeyListener();
+		addObserver();
 
         return v;
     }
 
-    protected void sendLifecycleEvent( String type ) {
-        WritableMap params = new WritableNativeMap();
-        params.putInt( "nativeTag", this.getId() );
-        params.putString( "type", type );
-        LatLong latLong = mapView.getModel().mapViewPosition.getMapPosition().latLong;
-        WritableArray latLongA = new WritableNativeArray();
-        latLongA.pushDouble( latLong.latitude );
-        latLongA.pushDouble( latLong.longitude );
-        params.putArray( "center",  latLongA );
-        params.putInt( "zoom",  mapView.getModel().mapViewPosition.getZoomLevel() );
-        Utils.sendEvent( reactContext, "MapLifecycle", params );
+	public void addObserver() {
+		observer = new Observer() {
+			@Override
+			public void onChange() {
+				WritableMap params = getResponseBase();
+				if ( rateLimiter.tryAcquire() ) {
+					Utils.sendEvent( reactContext, "onFrameBuffer", params );
+				}
+			}
+		};
+		mapView.getModel().frameBufferModel.addObserver( observer );
+	}
 
+	public void removeObserver() {
+		if ( null != observer ) {
+			mapView.getModel().frameBufferModel.removeObserver( observer );
+		}
+	}
+
+	protected WritableMap getResponseBase() {
+		WritableMap params = new WritableNativeMap();
+		params.putInt( "nativeTag", this.getId() );
+		params.putArray( "center",  Utils.latLongToArray( mapView.getModel().mapViewPosition.getCenter() ) );
+//		params.putDouble( "scaleFactor", mapView.getModel().mapViewPosition.getScaleFactor() );
+		params.putInt( "zoom",  mapView.getModel().mapViewPosition.getZoomLevel() );
+		return params;
+	}
+
+    protected void sendLifecycleEvent( String type ) {
+        WritableMap params = getResponseBase();
+        params.putString( "type", type );
+        Utils.sendEvent( reactContext, "MapLifecycle", params );
     }
 
     @Override
@@ -313,6 +339,7 @@ public class MapFragment extends Fragment {
 
     @Override
     public void onDestroy() {
+		removeObserver();
         mapView.destroyAll();
         removeHardwareKeyListener();
         AndroidGraphicFactory.clearResourceMemoryCache();
